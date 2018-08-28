@@ -534,6 +534,8 @@ Q(calcsize)
 
 Q(callable)
 
+Q(callback)
+
 Q(chdir)
 
 Q(chdir)
@@ -772,6 +774,10 @@ Q(hex)
 
 Q(hexlify)
 
+Q(high)
+
+Q(id)
+
 Q(id)
 
 Q(id)
@@ -821,6 +827,8 @@ Q(ioctl)
 Q(ioctl)
 
 Q(ipoll)
+
+Q(irq)
 
 Q(irq)
 
@@ -926,6 +934,8 @@ Q(lock)
 
 Q(locked)
 
+Q(low)
+
 Q(lower)
 
 Q(lower)
@@ -983,6 +993,8 @@ Q(mkfs)
 Q(mkfs)
 
 Q(mktime)
+
+Q(mode)
 
 Q(mode)
 
@@ -1062,11 +1074,11 @@ Q(print_exception)
 
 Q(priority)
 
-Q(property)
+Q(priority)
 
 Q(property)
 
-Q(pull)
+Q(property)
 
 Q(r)
 
@@ -1332,6 +1344,8 @@ Q(time)
 
 Q(to_bytes)
 
+Q(toggle)
+
 Q(trigger)
 
 Q(tuple)
@@ -1429,8 +1443,6 @@ Q(utf_hyphen_8)
 Q(utime)
 
 Q(utime)
-
-Q(value)
 
 Q(value)
 

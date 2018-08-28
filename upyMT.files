@@ -674,8 +674,9 @@ ports/mt7687/rtos/Source/timers.c
 ports/mt7687/serverstask.c
 ports/mt7687/serverstask.h
 ports/mt7687/version.h
-ports/mt7687/build-MT7687LITE/firmware.elf.map
-ports/mt7687/build-MT7687LITE/firmware.elf.dis
+ports/mt7687/build-MT7687Lite/pins.c
+ports/mt7687/build-MT7687Lite/firmware.elf.map
+ports/mt7687/build-MT7687Lite/firmware.elf.dis
 py/argcheck.c
 py/asmarm.c
 py/asmarm.h

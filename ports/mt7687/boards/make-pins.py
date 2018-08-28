@@ -8,32 +8,14 @@ import sys
 import argparse
 
 
-class AF:
-    """Holds the description of an alternate function"""
-    def __init__(self, name, af_num):
-        self.name = name
-        self.af_num = af_num
-
-    def print(self):
-        print ('    AF({:17s}, {:1d}),'.format(self.name, self.af_num))
-
-
 class Pin:
     """Holds the information associated with a pin."""
-    def __init__(self, name, pin_num):
-        self.name = name
-        self.pin_num = pin_num
-        self.afs = []
+    def __init__(self, name, index):
+        self.name  = name
+        self.index = index
 
     def print(self):
-        if len(self.afs):
-            print('const pin_af_t pin_{}_af[] = {{'.format(self.name))
-            for af in self.afs:
-                af.print()
-            print('};')
-            print('pin_obj_t pin_{:6s} = PIN({:6s}, {:2d}, pin_{}_af, {});\n'.format(self.name, self.name, self.pin_num, self.name, len(self.afs)))
-        else:
-            print('pin_obj_t pin_{:6s} = PIN({:6s}, {:2d}, NULL, 0);\n'.format(      self.name, self.name, self.pin_num))
+        print('pin_obj_t pin_{:6s} = PIN({:6s}, {:2s});\n'.format(self.name, self.name, self.index))
 
     def print_header(self, hdr_file):
         hdr_file.write('extern pin_obj_t pin_{:6s};\n'.format(self.name))
@@ -41,69 +23,47 @@ class Pin:
 
 class Pins:
     def __init__(self):
-        self.cpu_pins = []   # list of pin objects
+        self.pins = []   # list of Pin
 
-    def find_pin(self, port, gpio_bit):
-        for pin in self.cpu_pins:
-            if pin.port == port and pin.gpio_bit == gpio_bit:
-                return pin
-
-    def find_pin_by_num(self, pin_num):
-        for pin in self.cpu_pins:
-            if pin.pin_num == pin_num:
+    def find_pin(self, index):
+        for pin in self.pins:
+            if pin.index == index:
                 return pin
 
     def find_pin_by_name(self, name):
-        for pin in self.cpu_pins:
+        for pin in self.pins:
             if pin.name == name:
                 return pin
 
     def parse_af_file(self, filename):
         with open(filename, 'r') as f:
             for line in f.readlines():
-                match = re.match(r'#define ((GPIO(\d+))_\w+)\s+(\d)', line)
+                match = re.match(r'#define (GPIO\d+)\s+(\d+)', line)
                 if match:
-                    for pin in self.cpu_pins:
-                        if pin.name == match.group(2):
-                            break
-                    else:
-                        pin = Pin(match.group(2), int(match.group(3)))
-                        self.cpu_pins.append(pin)
-                    pin.afs.append(AF(match.group(1), int(match.group(4))))
-
-    def print_named(self, label, pins):
-        print('')
-        print('STATIC const mp_rom_map_elem_t pin_{:s}_pins_locals_dict_table[] = {{'.format(label))
-        for pin in pins:
-            print('    {{ MP_ROM_QSTR(MP_QSTR_{:6s}), MP_ROM_PTR(&pin_{:6s}) }},'.format(pin.name, pin.name))
-        print('};')
-        print('MP_DEFINE_CONST_DICT(pin_{:s}_pins_locals_dict, pin_{:s}_pins_locals_dict_table);'.format(label, label));
+                    pin = Pin(match.group(1), match.group(2))
+                    self.pins.append(pin)
 
     def print(self):
-        for pin in self.cpu_pins:
+        for pin in self.pins:
             pin.print()
-        self.print_named('cpu', self.cpu_pins)
         print('')
+        print('STATIC const mp_rom_map_elem_t pins_locals_dict_table[] = {')
+        for pin in self.pins:
+            print('    {{ MP_ROM_QSTR(MP_QSTR_{:7s}),  MP_ROM_PTR(&pin_{:7s}) }},'.format(pin.name, pin.name))
+        print('};')
+        print('')
+        print('MP_DEFINE_CONST_DICT(pins_locals_dict, pins_locals_dict_table);')
+        
 
     def print_header(self, hdr_filename):
         with open(hdr_filename, 'wt') as hdr_file:
-            for pin in self.cpu_pins:
+            for pin in self.pins:
                 pin.print_header(hdr_file)
 
     def print_qstr(self, qstr_filename):
         with open(qstr_filename, 'wt') as qstr_file:
-            pin_qstr_set = set([])
-            af_qstr_set = set([])
-            for pin in self.cpu_pins:
-                pin_qstr_set |= set([pin.name])
-                for af in pin.afs:
-                    af_qstr_set |= set([af.name])
-            print('// CPU pins', file=qstr_file)
-            for qstr in sorted(pin_qstr_set):
-                print('Q({})'.format(qstr), file=qstr_file)
-            print('\n// Pin AFs', file=qstr_file)
-            for qstr in sorted(af_qstr_set):
-                print('Q({})'.format(qstr), file=qstr_file)
+            for pin in self.pins:
+                print('Q({})'.format(pin.name), file=qstr_file)
 
 
 def main():
@@ -128,13 +88,13 @@ def main():
         "-q", "--qstr",
         dest="qstr_filename",
         help="Specifies name of generated qstr header file",
-        default="../build-MT7687LITE/pins_qstr.h"
+        default="../build-MT7687Lite/pins_qstr.h"
     )
     parser.add_argument(
         "-r", "--hdr",
         dest="hdr_filename",
         help="Specifies name of generated pin header file",
-        default="../build-MT7687LITE/pins.h"
+        default="../build-MT7687Lite/pins.h"
     )
     args = parser.parse_args(sys.argv[1:])
 

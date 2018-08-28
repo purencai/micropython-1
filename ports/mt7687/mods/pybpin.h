@@ -29,31 +29,21 @@
 
 
 typedef struct {
-    qstr name;
-    uint8_t index;
-} pin_af_t;
-
-typedef struct {
     const mp_obj_base_t base;
     const qstr          name;
     const uint8_t       index;
-    const pin_af_t      *af_list;
-    const uint8_t       af_count;
-    uint8_t             af;
+    uint8_t             alt;
     uint8_t             dir;
-    uint8_t             pull;
+    uint8_t             mode;
     uint8_t             value;
-    uint8_t             used;
     uint8_t             irq_trigger;
     uint8_t             irq_flags;
 } pin_obj_t;
 
+#include "pins.h"
+
 extern const mp_obj_type_t pyb_pin_type;
 
-
-
-pin_obj_t *pin_find(mp_obj_t user_obj);
-void pin_config(pin_obj_t *self, int af, uint mode, uint type, int value, uint strength);
-
+extern const mp_obj_dict_t pins_locals_dict;
 
 #endif // MICROPY_INCLUDED_MT7687_MODS_PYBPIN_H

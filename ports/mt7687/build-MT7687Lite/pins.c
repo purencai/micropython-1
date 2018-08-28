@@ -41,276 +41,105 @@
 #include "MT7687.h"
 
 
-#define AF(_name, _index) \
-{ \
-    .name  = MP_QSTR_ ## _name, \
-    .index = _index, \
-}
-
-
-#define PIN(_name, _index, _af_list, _af_count) \
+#define PIN(_name, _index) \
 { \
     { &pyb_pin_type }, \
     .name        = MP_QSTR_ ## _name, \
     .index       = (_index), \
-    .af_list     = (_af_list), \
-    .af_count    = (_af_count), \
-    .af          = 0, \
-    .dir         = GPIO_DIR_IN, \
-    .pull        = GPIO_PULL_NO, \
+    .alt         = 0, \
+    .dir         = 0, \
+    .mode        = 0, \
     .value       = 0, \
-    .used        = false, \
     .irq_trigger = 0, \
     .irq_flags   = 0, \
 }
 
-const pin_af_t pin_GPIO0_af[] = {
-    AF(GPIO0_EINT0      , 3),
-    AF(GPIO0_UART1_RTS  , 7),
-    AF(GPIO0_GPIO       , 8),
-    AF(GPIO0_PWM0       , 9),
+pin_obj_t pin_GPIO0  = PIN(GPIO0 , 0 );
+
+pin_obj_t pin_GPIO1  = PIN(GPIO1 , 1 );
+
+pin_obj_t pin_GPIO2  = PIN(GPIO2 , 2 );
+
+pin_obj_t pin_GPIO3  = PIN(GPIO3 , 3 );
+
+pin_obj_t pin_GPIO4  = PIN(GPIO4 , 4 );
+
+pin_obj_t pin_GPIO5  = PIN(GPIO5 , 5 );
+
+pin_obj_t pin_GPIO6  = PIN(GPIO6 , 6 );
+
+pin_obj_t pin_GPIO7  = PIN(GPIO7 , 7 );
+
+pin_obj_t pin_GPIO24 = PIN(GPIO24, 24);
+
+pin_obj_t pin_GPIO25 = PIN(GPIO25, 25);
+
+pin_obj_t pin_GPIO26 = PIN(GPIO26, 26);
+
+pin_obj_t pin_GPIO27 = PIN(GPIO27, 27);
+
+pin_obj_t pin_GPIO28 = PIN(GPIO28, 28);
+
+pin_obj_t pin_GPIO29 = PIN(GPIO29, 29);
+
+pin_obj_t pin_GPIO30 = PIN(GPIO30, 30);
+
+pin_obj_t pin_GPIO31 = PIN(GPIO31, 31);
+
+pin_obj_t pin_GPIO32 = PIN(GPIO32, 32);
+
+pin_obj_t pin_GPIO33 = PIN(GPIO33, 33);
+
+pin_obj_t pin_GPIO34 = PIN(GPIO34, 34);
+
+pin_obj_t pin_GPIO35 = PIN(GPIO35, 35);
+
+pin_obj_t pin_GPIO36 = PIN(GPIO36, 36);
+
+pin_obj_t pin_GPIO37 = PIN(GPIO37, 37);
+
+pin_obj_t pin_GPIO38 = PIN(GPIO38, 38);
+
+pin_obj_t pin_GPIO39 = PIN(GPIO39, 39);
+
+pin_obj_t pin_GPIO57 = PIN(GPIO57, 57);
+
+pin_obj_t pin_GPIO58 = PIN(GPIO58, 58);
+
+pin_obj_t pin_GPIO59 = PIN(GPIO59, 59);
+
+pin_obj_t pin_GPIO60 = PIN(GPIO60, 60);
+
+
+STATIC const mp_rom_map_elem_t pins_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_GPIO0  ),  MP_ROM_PTR(&pin_GPIO0  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO1  ),  MP_ROM_PTR(&pin_GPIO1  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO2  ),  MP_ROM_PTR(&pin_GPIO2  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO3  ),  MP_ROM_PTR(&pin_GPIO3  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO4  ),  MP_ROM_PTR(&pin_GPIO4  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO5  ),  MP_ROM_PTR(&pin_GPIO5  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO6  ),  MP_ROM_PTR(&pin_GPIO6  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO7  ),  MP_ROM_PTR(&pin_GPIO7  ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO24 ),  MP_ROM_PTR(&pin_GPIO24 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO25 ),  MP_ROM_PTR(&pin_GPIO25 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO26 ),  MP_ROM_PTR(&pin_GPIO26 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO27 ),  MP_ROM_PTR(&pin_GPIO27 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO28 ),  MP_ROM_PTR(&pin_GPIO28 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO29 ),  MP_ROM_PTR(&pin_GPIO29 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO30 ),  MP_ROM_PTR(&pin_GPIO30 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO31 ),  MP_ROM_PTR(&pin_GPIO31 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO32 ),  MP_ROM_PTR(&pin_GPIO32 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO33 ),  MP_ROM_PTR(&pin_GPIO33 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO34 ),  MP_ROM_PTR(&pin_GPIO34 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO35 ),  MP_ROM_PTR(&pin_GPIO35 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO36 ),  MP_ROM_PTR(&pin_GPIO36 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO37 ),  MP_ROM_PTR(&pin_GPIO37 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO38 ),  MP_ROM_PTR(&pin_GPIO38 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO39 ),  MP_ROM_PTR(&pin_GPIO39 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO57 ),  MP_ROM_PTR(&pin_GPIO57 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO58 ),  MP_ROM_PTR(&pin_GPIO58 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO59 ),  MP_ROM_PTR(&pin_GPIO59 ) },
+    { MP_ROM_QSTR(MP_QSTR_GPIO60 ),  MP_ROM_PTR(&pin_GPIO60 ) },
 };
-pin_obj_t pin_GPIO0  = PIN(GPIO0 ,  0, pin_GPIO0_af, 4);
 
-const pin_af_t pin_GPIO1_af[] = {
-    AF(GPIO1_EINT1      , 3),
-    AF(GPIO1_UART1_CTS  , 7),
-    AF(GPIO1_GPIO       , 8),
-    AF(GPIO1_PWM1       , 9),
-};
-pin_obj_t pin_GPIO1  = PIN(GPIO1 ,  1, pin_GPIO1_af, 4);
-
-const pin_af_t pin_GPIO2_af[] = {
-    AF(GPIO2_UART1_RX   , 7),
-    AF(GPIO2_GPIO       , 8),
-    AF(GPIO2_PWM23      , 9),
-};
-pin_obj_t pin_GPIO2  = PIN(GPIO2 ,  2, pin_GPIO2_af, 3);
-
-const pin_af_t pin_GPIO3_af[] = {
-    AF(GPIO3_EINT2      , 3),
-    AF(GPIO3_UART1_TX   , 7),
-    AF(GPIO3_GPIO       , 8),
-    AF(GPIO3_PWM24      , 9),
-};
-pin_obj_t pin_GPIO3  = PIN(GPIO3 ,  3, pin_GPIO3_af, 4);
-
-const pin_af_t pin_GPIO4_af[] = {
-    AF(GPIO4_EINT3      , 3),
-    AF(GPIO4_GPIO       , 8),
-    AF(GPIO4_PWM2       , 9),
-};
-pin_obj_t pin_GPIO4  = PIN(GPIO4 ,  4, pin_GPIO4_af, 3);
-
-const pin_af_t pin_GPIO5_af[] = {
-    AF(GPIO5_EINT4      , 3),
-    AF(GPIO5_GPIO       , 8),
-    AF(GPIO5_PWM3       , 9),
-};
-pin_obj_t pin_GPIO5  = PIN(GPIO5 ,  5, pin_GPIO5_af, 3);
-
-const pin_af_t pin_GPIO6_af[] = {
-    AF(GPIO6_EINT5      , 3),
-    AF(GPIO6_SPIM_CS1   , 7),
-    AF(GPIO6_GPIO       , 8),
-    AF(GPIO6_PWM4       , 9),
-};
-pin_obj_t pin_GPIO6  = PIN(GPIO6 ,  6, pin_GPIO6_af, 4);
-
-const pin_af_t pin_GPIO7_af[] = {
-    AF(GPIO7_EINT6      , 3),
-    AF(GPIO7_SPIS_MISO  , 5),
-    AF(GPIO7_SPIM_CS0   , 6),
-    AF(GPIO7_GPIO       , 8),
-    AF(GPIO7_PWM5       , 9),
-};
-pin_obj_t pin_GPIO7  = PIN(GPIO7 ,  7, pin_GPIO7_af, 5);
-
-const pin_af_t pin_GPIO24_af[] = {
-    AF(GPIO24_I2C2_SCK  , 4),
-    AF(GPIO24_SPIS_MOSI , 5),
-    AF(GPIO24_SPIM_MOSI , 6),
-    AF(GPIO24_GPIO      , 8),
-    AF(GPIO24_PWM25     , 9),
-};
-pin_obj_t pin_GPIO24 = PIN(GPIO24, 24, pin_GPIO24_af, 5);
-
-const pin_af_t pin_GPIO25_af[] = {
-    AF(GPIO25_I2C2_SDA  , 4),
-    AF(GPIO25_SPIS_SCK  , 5),
-    AF(GPIO25_SPIM_MISO , 6),
-    AF(GPIO25_GPIO      , 8),
-    AF(GPIO25_PWM26     , 9),
-};
-pin_obj_t pin_GPIO25 = PIN(GPIO25, 25, pin_GPIO25_af, 5);
-
-const pin_af_t pin_GPIO26_af[] = {
-    AF(GPIO26_I2S_TX    , 4),
-    AF(GPIO26_SPIS_CS0  , 5),
-    AF(GPIO26_SPIM_SCK  , 6),
-    AF(GPIO26_GPIO      , 8),
-    AF(GPIO26_PWM27     , 9),
-};
-pin_obj_t pin_GPIO26 = PIN(GPIO26, 26, pin_GPIO26_af, 5);
-
-const pin_af_t pin_GPIO27_af[] = {
-    AF(GPIO27_I2C1_SCK  , 4),
-    AF(GPIO27_GPIO      , 8),
-    AF(GPIO27_PWM28     , 9),
-};
-pin_obj_t pin_GPIO27 = PIN(GPIO27, 27, pin_GPIO27_af, 3);
-
-const pin_af_t pin_GPIO28_af[] = {
-    AF(GPIO28_I2C1_SDA  , 4),
-    AF(GPIO28_GPIO      , 8),
-    AF(GPIO28_PWM29     , 9),
-};
-pin_obj_t pin_GPIO28 = PIN(GPIO28, 28, pin_GPIO28_af, 3);
-
-const pin_af_t pin_GPIO29_af[] = {
-    AF(GPIO29_I2S_MCLK  , 4),
-    AF(GPIO29_SPIS_MOSI , 6),
-    AF(GPIO29_SPIM_MOSI , 7),
-    AF(GPIO29_GPIO      , 8),
-    AF(GPIO29_PWM30     , 9),
-};
-pin_obj_t pin_GPIO29 = PIN(GPIO29, 29, pin_GPIO29_af, 5);
-
-const pin_af_t pin_GPIO30_af[] = {
-    AF(GPIO30_I2S_FS    , 4),
-    AF(GPIO30_SPIS_MISO , 6),
-    AF(GPIO30_SPIM_MISO , 7),
-    AF(GPIO30_GPIO      , 8),
-    AF(GPIO30_PWM31     , 9),
-};
-pin_obj_t pin_GPIO30 = PIN(GPIO30, 30, pin_GPIO30_af, 5);
-
-const pin_af_t pin_GPIO31_af[] = {
-    AF(GPIO31_I2S_RX    , 4),
-    AF(GPIO31_I2S_TX    , 5),
-    AF(GPIO31_SPIS_SCK  , 6),
-    AF(GPIO31_SPIM_SCK  , 7),
-    AF(GPIO31_GPIO      , 8),
-    AF(GPIO31_PWM32     , 9),
-};
-pin_obj_t pin_GPIO31 = PIN(GPIO31, 31, pin_GPIO31_af, 6);
-
-const pin_af_t pin_GPIO32_af[] = {
-    AF(GPIO32_I2S_BCLK  , 4),
-    AF(GPIO32_SPIS_CS0  , 6),
-    AF(GPIO32_SPIM_CS0  , 7),
-    AF(GPIO32_GPIO      , 8),
-    AF(GPIO32_PWM33     , 9),
-};
-pin_obj_t pin_GPIO32 = PIN(GPIO32, 32, pin_GPIO32_af, 5);
-
-const pin_af_t pin_GPIO33_af[] = {
-    AF(GPIO33_IR_TX     , 7),
-    AF(GPIO33_GPIO      , 8),
-    AF(GPIO33_PWM34     , 9),
-};
-pin_obj_t pin_GPIO33 = PIN(GPIO33, 33, pin_GPIO33_af, 3);
-
-const pin_af_t pin_GPIO34_af[] = {
-    AF(GPIO34_IR_RX     , 7),
-    AF(GPIO34_GPIO      , 8),
-    AF(GPIO34_PWM35     , 9),
-};
-pin_obj_t pin_GPIO34 = PIN(GPIO34, 34, pin_GPIO34_af, 3);
-
-const pin_af_t pin_GPIO35_af[] = {
-    AF(GPIO35_EINT19    , 3),
-    AF(GPIO35_I2S_TX    , 5),
-    AF(GPIO35_GPIO      , 8),
-    AF(GPIO35_PWM18     , 9),
-};
-pin_obj_t pin_GPIO35 = PIN(GPIO35, 35, pin_GPIO35_af, 4);
-
-const pin_af_t pin_GPIO36_af[] = {
-    AF(GPIO36_UART2_RX  , 7),
-    AF(GPIO36_GPIO      , 8),
-    AF(GPIO36_PWM19     , 9),
-};
-pin_obj_t pin_GPIO36 = PIN(GPIO36, 36, pin_GPIO36_af, 3);
-
-const pin_af_t pin_GPIO37_af[] = {
-    AF(GPIO37_EINT20    , 3),
-    AF(GPIO37_UART2_TX  , 7),
-    AF(GPIO37_GPIO      , 8),
-    AF(GPIO37_PWM20     , 9),
-};
-pin_obj_t pin_GPIO37 = PIN(GPIO37, 37, pin_GPIO37_af, 4);
-
-const pin_af_t pin_GPIO38_af[] = {
-    AF(GPIO38_EINT21    , 3),
-    AF(GPIO38_UART2_RTS , 7),
-    AF(GPIO38_GPIO      , 8),
-    AF(GPIO38_PWM21     , 9),
-};
-pin_obj_t pin_GPIO38 = PIN(GPIO38, 38, pin_GPIO38_af, 4);
-
-const pin_af_t pin_GPIO39_af[] = {
-    AF(GPIO39_EINT22    , 3),
-    AF(GPIO39_UART2_CTS , 7),
-    AF(GPIO39_GPIO      , 8),
-    AF(GPIO39_PWM22     , 9),
-};
-pin_obj_t pin_GPIO39 = PIN(GPIO39, 39, pin_GPIO39_af, 4);
-
-const pin_af_t pin_GPIO57_af[] = {
-    AF(GPIO57_GPIO      , 8),
-    AF(GPIO57_PWM36     , 9),
-};
-pin_obj_t pin_GPIO57 = PIN(GPIO57, 57, pin_GPIO57_af, 2);
-
-const pin_af_t pin_GPIO58_af[] = {
-    AF(GPIO58_GPIO      , 8),
-    AF(GPIO58_PWM37     , 9),
-};
-pin_obj_t pin_GPIO58 = PIN(GPIO58, 58, pin_GPIO58_af, 2);
-
-const pin_af_t pin_GPIO59_af[] = {
-    AF(GPIO59_GPIO      , 8),
-    AF(GPIO59_PWM38     , 9),
-};
-pin_obj_t pin_GPIO59 = PIN(GPIO59, 59, pin_GPIO59_af, 2);
-
-const pin_af_t pin_GPIO60_af[] = {
-    AF(GPIO60_GPIO      , 8),
-    AF(GPIO60_PWM39     , 9),
-};
-pin_obj_t pin_GPIO60 = PIN(GPIO60, 60, pin_GPIO60_af, 2);
-
-
-STATIC const mp_rom_map_elem_t pin_cpu_pins_locals_dict_table[] = {
-    { MP_ROM_QSTR(MP_QSTR_GPIO0 ), MP_ROM_PTR(&pin_GPIO0 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO1 ), MP_ROM_PTR(&pin_GPIO1 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO2 ), MP_ROM_PTR(&pin_GPIO2 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO3 ), MP_ROM_PTR(&pin_GPIO3 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO4 ), MP_ROM_PTR(&pin_GPIO4 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO5 ), MP_ROM_PTR(&pin_GPIO5 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO6 ), MP_ROM_PTR(&pin_GPIO6 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO7 ), MP_ROM_PTR(&pin_GPIO7 ) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO24), MP_ROM_PTR(&pin_GPIO24) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO25), MP_ROM_PTR(&pin_GPIO25) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO26), MP_ROM_PTR(&pin_GPIO26) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO27), MP_ROM_PTR(&pin_GPIO27) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO28), MP_ROM_PTR(&pin_GPIO28) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO29), MP_ROM_PTR(&pin_GPIO29) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO30), MP_ROM_PTR(&pin_GPIO30) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO31), MP_ROM_PTR(&pin_GPIO31) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO32), MP_ROM_PTR(&pin_GPIO32) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO33), MP_ROM_PTR(&pin_GPIO33) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO34), MP_ROM_PTR(&pin_GPIO34) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO35), MP_ROM_PTR(&pin_GPIO35) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO36), MP_ROM_PTR(&pin_GPIO36) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO37), MP_ROM_PTR(&pin_GPIO37) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO38), MP_ROM_PTR(&pin_GPIO38) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO39), MP_ROM_PTR(&pin_GPIO39) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO57), MP_ROM_PTR(&pin_GPIO57) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO58), MP_ROM_PTR(&pin_GPIO58) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO59), MP_ROM_PTR(&pin_GPIO59) },
-    { MP_ROM_QSTR(MP_QSTR_GPIO60), MP_ROM_PTR(&pin_GPIO60) },
-};
-MP_DEFINE_CONST_DICT(pin_cpu_pins_locals_dict, pin_cpu_pins_locals_dict_table);
-
+MP_DEFINE_CONST_DICT(pins_locals_dict, pins_locals_dict_table);

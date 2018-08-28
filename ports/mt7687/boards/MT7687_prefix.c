@@ -36,25 +36,15 @@
 #include "MT7687.h"
 
 
-#define AF(_name, _index) \
-{ \
-    .name  = MP_QSTR_ ## _name, \
-    .index = _index, \
-}
-
-
-#define PIN(_name, _index, _af_list, _af_count) \
+#define PIN(_name, _index) \
 { \
     { &pyb_pin_type }, \
     .name        = MP_QSTR_ ## _name, \
     .index       = (_index), \
-    .af_list     = (_af_list), \
-    .af_count    = (_af_count), \
-    .af          = 0, \
-    .dir         = GPIO_DIR_IN, \
-    .pull        = GPIO_PULL_NO, \
+    .alt         = 0, \
+    .dir         = 0, \
+    .mode        = 0, \
     .value       = 0, \
-    .used        = false, \
     .irq_trigger = 0, \
     .irq_flags   = 0, \
 }

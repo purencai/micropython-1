@@ -78,6 +78,7 @@ MODS_SRC_C = $(addprefix mods/,\
     modubinascii.c \
 	pybuart.c \
     pybflash.c \
+    pybpin.c \
 )
 #
 # 	modnetwork.c \
@@ -85,7 +86,7 @@ MODS_SRC_C = $(addprefix mods/,\
 # 	modussl.c \
 # 	modwlan.c \
 # 	pybadc.c \
-#   pybpin.c \
+#
 # 	pybi2c.c \
 # 	pybrtc.c \
 #
