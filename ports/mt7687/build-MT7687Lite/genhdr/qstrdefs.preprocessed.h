@@ -3430,6 +3430,8 @@ Q(POLLOUT)
 
 Q(Pin)
 
+Q(Pin)
+
 Q(RX_ANY)
 
 Q(RuntimeError)

@@ -6,7 +6,7 @@
     .globl    __StackTop
     .globl    __StackLimit
 __StackLimit:
-    .space    0x20000
+    .space    0x10000
 __StackTop:
 
     .section .heap
@@ -14,7 +14,7 @@ __StackTop:
     .globl    __HeapBase
     .globl    __HeapLimit
 __HeapBase:
-    .space    0x10000
+    .space    0x20000
 __HeapLimit:
 
     .section .isr_vector
