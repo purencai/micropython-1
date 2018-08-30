@@ -190,8 +190,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_low_obj, pin_low);
 STATIC mp_obj_t pin_toggle(mp_obj_t self_in) {
     pin_obj_t *self = self_in;
 
-    if(GPIO_GetBit(self->index)) GPIO_ClrBit(self->index);
-    else                         GPIO_SetBit(self->index);
+    GPIO_InvBit(self->index);
 
     return mp_const_none;
 }

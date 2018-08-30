@@ -113,13 +113,12 @@ void PORT_Init(uint32_t pin, uint32_t func)
 #define IOT_GPIO_IES1               (IOT_GPIO_IES0 + 0x04)
 #define IOT_GPIO_IES2               (IOT_GPIO_IES0 + 0x08)
 
-
-#define IOT_GPIO_SDIO_CLK               (0x48)
-#define IOT_GPIO_SDIO_CMD               (IOT_GPIO_SDIO_CLK + 0x04)
-#define IOT_GPIO_SDIO_DATA0             (IOT_GPIO_SDIO_CLK + 0x08)
-#define IOT_GPIO_SDIO_DATA1             (IOT_GPIO_SDIO_CLK + 0x0C)
-#define IOT_GPIO_SDIO_DATA2             (IOT_GPIO_SDIO_CLK + 0x10)
-#define IOT_GPIO_SDIO_DATA3             (IOT_GPIO_SDIO_CLK + 0x14)
+#define IOT_GPIO_SDIO_CLK           (0x48)
+#define IOT_GPIO_SDIO_CMD           (IOT_GPIO_SDIO_CLK + 0x04)
+#define IOT_GPIO_SDIO_DATA0         (IOT_GPIO_SDIO_CLK + 0x08)
+#define IOT_GPIO_SDIO_DATA1         (IOT_GPIO_SDIO_CLK + 0x0C)
+#define IOT_GPIO_SDIO_DATA2         (IOT_GPIO_SDIO_CLK + 0x10)
+#define IOT_GPIO_SDIO_DATA3         (IOT_GPIO_SDIO_CLK + 0x14)
 
 
 
@@ -229,6 +228,26 @@ void GPIO_ClrBit(uint32_t pin)
         *((volatile uint32_t *) (IOT_GPIO_AON_BASE + IOT_GPIO_DOUT2_RESET)) = (1 << bit);
         break;
     }
+}
+
+void GPIO_InvBit(uint32_t pin)
+{
+    uint32_t val = 0;
+	uint32_t bit = pin % 32;
+	
+	switch(pin/32)
+    {
+    case 0:
+        val = (*((volatile uint32_t *) (IOT_GPIO_AON_BASE + IOT_GPIO_DOUT1)) >> bit) & 1;
+        break;
+
+    case 1:
+        val = (*((volatile uint32_t *) (IOT_GPIO_AON_BASE + IOT_GPIO_DOUT2)) >> bit) & 1;
+        break;
+    }
+	
+	if(val) GPIO_ClrBit(pin);
+	else    GPIO_SetBit(pin);
 }
 
 uint32_t GPIO_GetBit(uint32_t pin)

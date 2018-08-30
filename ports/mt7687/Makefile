@@ -53,6 +53,8 @@ CHIP_SRC_C = $(addprefix chip/Source/,\
 	system_MT7687.c \
 	MT7687_GPIO.c \
 	MT7687_UART.c \
+    MT7687_TIMR.c \
+    MT7687_PWM.c  \
     MT7687_Flash.c \
 )
 
@@ -79,6 +81,7 @@ MODS_SRC_C = $(addprefix mods/,\
 	pybuart.c \
     pybflash.c \
     pybpin.c \
+    pybtimer.c \
 )
 #
 # 	modnetwork.c \
@@ -90,10 +93,9 @@ MODS_SRC_C = $(addprefix mods/,\
 # 	pybi2c.c \
 # 	pybrtc.c \
 #
-# 	pybsd.c \
 # 	pybsleep.c \
 # 	pybspi.c \
-# 	pybtimer.c \
+#
 #
 # 	pybwdt.c \
 #)

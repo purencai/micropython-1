@@ -24,17 +24,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_MT7687_MODS_PYBTIMER_H
-#define MICROPY_INCLUDED_MT7687_MODS_PYBTIMER_H
+#ifndef MICROPY_INCLUDED_SWM320_MODS_PYBPWM_H
+#define MICROPY_INCLUDED_SWM320_MODS_PYBPWM_H
 
-/******************************************************************************
- DECLARE EXPORTED DATA
- ******************************************************************************/
-extern const mp_obj_type_t pyb_timer_type;
+extern const mp_obj_type_t pyb_pwm_type;
 
-/******************************************************************************
- DECLARE PUBLIC FUNCTIONS
- ******************************************************************************/
-void timer_init0 (void);
-
-#endif // MICROPY_INCLUDED_MT7687_MODS_PYBTIMER_H
+#endif // MICROPY_INCLUDED_SWM320_MODS_PYBPWM_H

@@ -1,9 +1,9 @@
-# 1 "mods/pybpin.c"
+# 1 "mods/modmachine.c"
 # 1 "/home/wmx/win/micropython/ports/mt7687//"
 # 1 "<built-in>"
 # 1 "<command-line>"
-# 1 "mods/pybpin.c"
-# 28 "mods/pybpin.c"
+# 1 "mods/modmachine.c"
+# 28 "mods/modmachine.c"
 # 1 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/stdio.h" 1 3
 # 29 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/stdio.h" 3
 # 1 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/_ansi.h" 1 3
@@ -1190,7 +1190,7 @@ static __inline__ int __sputc_r(struct _reent *_ptr, int _c, FILE *_p) {
 }
 # 767 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/stdio.h" 3
 
-# 29 "mods/pybpin.c" 2
+# 29 "mods/modmachine.c" 2
 # 1 "/mnt/c/Ubuntu/gcc-arm-none/lib/gcc/arm-none-eabi/6.3.1/include/stdint.h" 1 3 4
 # 9 "/mnt/c/Ubuntu/gcc-arm-none/lib/gcc/arm-none-eabi/6.3.1/include/stdint.h" 3 4
 # 1 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/stdint.h" 1 3 4
@@ -1253,139 +1253,7 @@ typedef __uint_least64_t uint_least64_t;
   typedef long long int int_fast64_t;
   typedef long long unsigned int uint_fast64_t;
 # 10 "/mnt/c/Ubuntu/gcc-arm-none/lib/gcc/arm-none-eabi/6.3.1/include/stdint.h" 2 3 4
-# 30 "mods/pybpin.c" 2
-# 1 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 1 3
-# 17 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 3
-# 1 "/mnt/c/Ubuntu/gcc-arm-none/lib/gcc/arm-none-eabi/6.3.1/include/stddef.h" 1 3 4
-# 18 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 2 3
-
-
-# 1 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/xlocale.h" 1 3
-# 9 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/xlocale.h" 3
-struct __locale_t;
-typedef struct __locale_t *locale_t;
-# 21 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 2 3
-
-
-
-
-void * memchr (const void *, int, size_t);
-int memcmp (const void *, const void *, size_t);
-void * memcpy (void * restrict, const void * restrict, size_t);
-void * memmove (void *, const void *, size_t);
-void * memset (void *, int, size_t);
-char *strcat (char *restrict, const char *restrict);
-char *strchr (const char *, int);
-int strcmp (const char *, const char *);
-int strcoll (const char *, const char *);
-char *strcpy (char *restrict, const char *restrict);
-size_t strcspn (const char *, const char *);
-char *strerror (int);
-size_t strlen (const char *);
-char *strncat (char *restrict, const char *restrict, size_t);
-int strncmp (const char *, const char *, size_t);
-char *strncpy (char *restrict, const char *restrict, size_t);
-char *strpbrk (const char *, const char *);
-char *strrchr (const char *, int);
-size_t strspn (const char *, const char *);
-char *strstr (const char *, const char *);
-
-char *strtok (char *restrict, const char *restrict);
-
-size_t strxfrm (char *restrict, const char *restrict, size_t);
-
-
-int strcoll_l (const char *, const char *, locale_t);
-char *strerror_l (int, locale_t);
-size_t strxfrm_l (char *restrict, const char *restrict, size_t, locale_t);
-
-
-
-
-
-
-char *strtok_r (char *restrict, const char *restrict, char **restrict);
-
-
-int bcmp (const void *, const void *, size_t);
-void bcopy (const void *, void *, size_t);
-void bzero (void *, size_t);
-
-
-void explicit_bzero (void *, size_t);
-int timingsafe_bcmp (const void *, const void *, size_t);
-int timingsafe_memcmp (const void *, const void *, size_t);
-
-
-int ffs (int);
-char *index (const char *, int);
-
-
-void * memccpy (void * restrict, const void * restrict, int, size_t);
-# 86 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 3
-char *rindex (const char *, int);
-
-
-char *stpcpy (char *restrict, const char *restrict);
-char *stpncpy (char *restrict, const char *restrict, size_t);
-
-
-int strcasecmp (const char *, const char *);
-
-
-
-
-
-
-char *strdup (const char *);
-
-char *_strdup_r (struct _reent *, const char *);
-
-char *strndup (const char *, size_t);
-
-char *_strndup_r (struct _reent *, const char *, size_t);
-# 121 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 3
-int strerror_r (int, char *, size_t)
-
-             __asm__ ("" "__xpg_strerror_r")
-
-  ;
-
-
-
-
-
-
-
-char * _strerror_r (struct _reent *, int, int, int *);
-
-
-size_t strlcat (char *, const char *, size_t);
-size_t strlcpy (char *, const char *, size_t);
-
-
-int strncasecmp (const char *, const char *, size_t);
-
-
-size_t strnlen (const char *, size_t);
-
-
-char *strsep (char **, const char *);
-
-
-
-char *strlwr (char *);
-char *strupr (char *);
-
-
-
-char *strsignal (int __signo);
-# 192 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 3
-# 1 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/sys/string.h" 1 3
-# 193 "/mnt/c/Ubuntu/gcc-arm-none/arm-none-eabi/include/string.h" 2 3
-
-
-# 31 "mods/pybpin.c" 2
+# 30 "mods/modmachine.c" 2
 
 # 1 "../../py/runtime.h" 1
 # 29 "../../py/runtime.h"
@@ -3263,6 +3131,31 @@ void SystemCoreClockUpdate(void);
 # 57 "chip/Include/MT7687.h" 2
 
 
+
+
+
+
+typedef struct {
+ volatile uint32_t IF;
+ volatile uint32_t IE;
+ volatile uint32_t RESERVED1[2];
+ volatile uint32_t T0CR;
+ volatile uint32_t T0IV;
+ volatile uint32_t RESERVED2[2];
+ volatile uint32_t T1CR;
+ volatile uint32_t T1IV;
+ volatile uint32_t RESERVED3[2];
+ volatile uint32_t T2CR;
+ volatile const uint32_t T2V;
+ volatile uint32_t RESERVED4[2];
+ volatile const uint32_t T0V;
+ volatile const uint32_t T1V;
+ volatile uint32_t RESERVED5[6];
+ volatile uint32_t T4CR;
+ volatile uint32_t T4IV;
+ volatile const uint32_t T4V;
+} TIMR_TypeDef;
+# 107 "chip/Include/MT7687.h"
 typedef struct {
  union {
   volatile const uint32_t RBR;
@@ -3285,7 +3178,50 @@ typedef struct {
     volatile const uint32_t RSV;
     volatile uint32_t HSP;
 } UART_TypeDef;
-# 142 "chip/Include/MT7687.h"
+# 191 "chip/Include/MT7687.h"
+typedef struct {
+ volatile uint32_t CR0;
+ volatile uint32_t CR1;
+ volatile uint32_t CR2;
+ volatile uint32_t CR3;
+ volatile uint32_t CR4;
+      uint32_t RESERVED0[(0x830D0000 - 0x83008190)/4 -1];
+ volatile uint32_t DR;
+ volatile uint32_t IE;
+ union {
+  volatile uint32_t IF;
+  volatile uint32_t FFCLR;
+ };
+ volatile uint32_t SRRDY;
+      uint32_t RESERVED1;
+ volatile uint32_t LSR;
+      uint32_t RESERVED2[18];
+ volatile uint32_t FFTRILVL;
+} ADC_TypeDef;
+
+
+
+
+typedef struct {
+ volatile uint32_t GCR;
+      uint32_t RESERVED1[63];
+ struct {
+  volatile uint32_t CR;
+  volatile uint32_t S0;
+  volatile uint32_t S1;
+       uint32_t RESERVED2;
+ } CH[40];
+} PWM_TypeDef;
+# 263 "chip/Include/MT7687.h"
+typedef struct {
+    volatile uint32_t CR;
+         uint32_t RESERVED0[3];
+    volatile uint32_t OLEN;
+    volatile uint32_t ILEN;
+         uint32_t RESERVED1[(0x800-0x18)/4];
+    volatile uint32_t DATA[40];
+} SFC_TypeDef;
+# 280 "chip/Include/MT7687.h"
 typedef struct {
     volatile uint32_t CR;
     volatile uint32_t OP;
@@ -3303,16 +3239,7 @@ typedef struct {
     volatile uint32_t ENTRY_N[16];
     volatile uint32_t END_ENTRY_N[16];
 } CACHE_TypeDef;
-# 183 "chip/Include/MT7687.h"
-typedef struct {
-    volatile uint32_t CR;
-         uint32_t RESERVED0[3];
-    volatile uint32_t OLEN;
-    volatile uint32_t ILEN;
-         uint32_t RESERVED1[(0x800-0x18)/4];
-    volatile uint32_t DATA[40];
-} SFC_TypeDef;
-# 230 "chip/Include/MT7687.h"
+# 355 "chip/Include/MT7687.h"
 # 1 "chip/Include/MT7687_GPIO.h" 1
 # 14 "chip/Include/MT7687_GPIO.h"
 void PORT_Init(uint32_t pin, uint32_t func);
@@ -3321,28 +3248,56 @@ void GPIO_Init(uint32_t pin, uint32_t dir);
 
 void GPIO_SetBit(uint32_t pin);
 void GPIO_ClrBit(uint32_t pin);
+void GPIO_InvBit(uint32_t pin);
 uint32_t GPIO_GetBit(uint32_t pin);
-# 231 "chip/Include/MT7687.h" 2
+# 356 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_TIMR.h" 1
-# 232 "chip/Include/MT7687.h" 2
+
+
+
+
+void TIMR_Init(uint32_t TIMRx, uint32_t period, uint32_t int_en);
+void TIMR_Start(uint32_t TIMRx);
+void TIMR_Stop(uint32_t TIMRx);
+
+void TIMR_Restart(uint32_t TIMRx);
+
+void TIMR_SetPeriod(uint32_t TIMRx, uint32_t period);
+uint32_t TIMR_CurrentValue(uint32_t TIMRx);
+# 357 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_UART.h" 1
 
 
 
 
 void UART_Init(UART_TypeDef * UARTx, uint32_t baudrate, uint8_t databits, uint8_t parity, uint8_t stopbits);
-# 233 "chip/Include/MT7687.h" 2
+# 358 "chip/Include/MT7687.h" 2
+# 1 "chip/Include/MT7687_SPI.h" 1
+# 359 "chip/Include/MT7687.h" 2
+# 1 "chip/Include/MT7687_I2C.h" 1
+# 360 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_ADC.h" 1
-# 234 "chip/Include/MT7687.h" 2
+# 361 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_PWM.h" 1
-# 235 "chip/Include/MT7687.h" 2
+
+
+
+
+void PWM_ClockSelect(uint32_t clksrc);
+
+void PWM_Init(uint32_t chn, uint16_t on_time, uint16_t off_time, uint32_t global_start);
+void PWM_Start(uint32_t chn);
+void PWM_Stop(uint32_t chn);
+void PWM_GStart(void);
+void PWM_GStop(void);
+# 362 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_Flash.h" 1
 
 
 
 __attribute__((__section__(".tcmTEXT")))
 void FLASH_PageWrite(uint32_t addr, uint32_t *data);
-# 236 "chip/Include/MT7687.h" 2
+# 363 "chip/Include/MT7687.h" 2
 # 200 "./mpconfigport.h" 2
 
 
@@ -4754,57 +4709,100 @@ mp_uint_t mp_convert_obj_to_native(mp_obj_t obj, mp_uint_t type);
 mp_obj_t mp_convert_native_to_obj(mp_uint_t val, mp_uint_t type);
 mp_obj_t mp_native_call_function_n_kw(mp_obj_t fun_in, size_t n_args_kw, const mp_obj_t *args);
 void mp_native_raise(mp_obj_t o);
-# 33 "mods/pybpin.c" 2
-# 1 "../../py/gc.h" 1
-# 34 "../../py/gc.h"
-void gc_init(void *start, void *end);
+# 32 "mods/modmachine.c" 2
+# 1 "../../py/mphal.h" 1
+# 34 "../../py/mphal.h"
+# 1 "./mphalport.h" 1
+# 32 "./mphalport.h"
+mp_uint_t mp_hal_ticks_ms(void);
+mp_uint_t mp_hal_ticks_us(void);
+mp_uint_t mp_hal_ticks_cpu(void);
+
+void mp_hal_delay_ms(mp_uint_t ms);
+void mp_hal_delay_us(mp_uint_t us);
+
+void mp_hal_stdout_tx_str(const char *str);
+void mp_hal_stdout_tx_strn(const char *str, size_t len);
+void mp_hal_stdout_tx_strn_cooked(const char *str, size_t len);
+
+int mp_hal_stdin_rx_chr(void);
+void mp_hal_set_interrupt_char (int c);
+# 35 "../../py/mphal.h" 2
 
 
 
-void gc_lock(void);
-void gc_unlock(void);
+int mp_hal_stdin_rx_chr(void);
 
-# 40 "../../py/gc.h" 3 4
+
+
+void mp_hal_stdout_tx_str(const char *str);
+
+
+
+void mp_hal_stdout_tx_strn(const char *str, size_t len);
+
+
+
+void mp_hal_stdout_tx_strn_cooked(const char *str, size_t len);
+
+
+
+void mp_hal_delay_ms(mp_uint_t ms);
+
+
+
+void mp_hal_delay_us(mp_uint_t us);
+
+
+
+mp_uint_t mp_hal_ticks_ms(void);
+
+
+
+mp_uint_t mp_hal_ticks_us(void);
+
+
+
+mp_uint_t mp_hal_ticks_cpu(void);
+# 80 "../../py/mphal.h"
+# 1 "../../extmod/virtpin.h" 1
+# 37 "../../extmod/virtpin.h"
+typedef struct _mp_pin_p_t {
+    mp_uint_t (*ioctl)(mp_obj_t obj, mp_uint_t request, uintptr_t arg, int *errcode);
+} mp_pin_p_t;
+
+int mp_virtual_pin_read(mp_obj_t pin);
+void mp_virtual_pin_write(mp_obj_t pin, int value);
+
+
+mp_obj_t mp_pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args);
+# 81 "../../py/mphal.h" 2
+# 33 "mods/modmachine.c" 2
+# 1 "mods/pybuart.h" 1
+# 30 "mods/pybuart.h"
+typedef enum {
+    PYB_UART_1 = 0,
+    PYB_UART_2 = 1,
+    PYB_NUM_UARTS
+} pyb_uart_id_t;
+
+typedef struct _pyb_uart_obj_t pyb_uart_obj_t;
+extern const mp_obj_type_t pyb_uart_type;
+
+void uart_init0(void);
+uint32_t uart_rx_any(pyb_uart_obj_t *uart_obj);
+int uart_rx_char(pyb_uart_obj_t *uart_obj);
+
+# 42 "mods/pybuart.h" 3 4
 _Bool 
-# 40 "../../py/gc.h"
-    gc_is_locked(void);
+# 42 "mods/pybuart.h"
+    uart_tx_char(pyb_uart_obj_t *self, int c);
 
-
-void gc_collect(void);
-void gc_collect_start(void);
-void gc_collect_root(void **ptrs, size_t len);
-void gc_collect_end(void);
-
-
-void gc_sweep_all(void);
-
-void *gc_alloc(size_t n_bytes, 
-# 51 "../../py/gc.h" 3 4
-                              _Bool 
-# 51 "../../py/gc.h"
-                                   has_finaliser);
-void gc_free(void *ptr);
-size_t gc_nbytes(const void *ptr);
-void *gc_realloc(void *ptr, size_t n_bytes, 
-# 54 "../../py/gc.h" 3 4
-                                           _Bool 
-# 54 "../../py/gc.h"
-                                                allow_move);
-
-typedef struct _gc_info_t {
-    size_t total;
-    size_t used;
-    size_t free;
-    size_t max_free;
-    size_t num_1block;
-    size_t num_2block;
-    size_t max_block;
-} gc_info_t;
-
-void gc_info(gc_info_t *info);
-void gc_dump_info(void);
-void gc_dump_alloc_table(void);
-# 34 "mods/pybpin.c" 2
+# 43 "mods/pybuart.h" 3 4
+_Bool 
+# 43 "mods/pybuart.h"
+    uart_tx_strn(pyb_uart_obj_t *uart_obj, const char *str, uint len);
+# 34 "mods/modmachine.c" 2
 # 1 "mods/pybpin.h" 1
 # 31 "mods/pybpin.h"
 typedef struct {
@@ -4853,7 +4851,356 @@ extern pin_obj_t pin_GPIO60;
 extern const mp_obj_type_t pyb_pin_type;
 
 extern const mp_obj_dict_t pins_locals_dict;
-# 35 "mods/pybpin.c" 2
+# 35 "mods/modmachine.c" 2
+# 1 "mods/pybtimer.h" 1
+# 33 "mods/pybtimer.h"
+extern const mp_obj_type_t pyb_timer_type;
+
+
+
+
+void timer_init0 (void);
+# 36 "mods/modmachine.c" 2
+# 1 "mods/moduos.h" 1
+# 36 "mods/moduos.h"
+typedef struct _os_term_dup_obj_t {
+    mp_obj_t stream_o;
+    mp_obj_t read[3];
+    mp_obj_t write[3];
+} os_term_dup_obj_t;
+
+
+
+
+void osmount_unmount_all (void);
+# 37 "mods/modmachine.c" 2
+
+# 1 "rtos/Source/include/portable.h" 1
+# 39 "mods/modmachine.c" 2
+# 1 "rtos/Source/include/task.h" 1
+# 78 "rtos/Source/include/task.h"
+# 1 "rtos/Source/include/list.h" 1
+# 181 "rtos/Source/include/list.h"
+struct xLIST_ITEM
+{
+
+ TickType_t xItemValue;
+ struct xLIST_ITEM * pxNext;
+ struct xLIST_ITEM * pxPrevious;
+ void * pvOwner;
+ void * pvContainer;
+
+};
+typedef struct xLIST_ITEM ListItem_t;
+
+struct xMINI_LIST_ITEM
+{
+
+ TickType_t xItemValue;
+ struct xLIST_ITEM * pxNext;
+ struct xLIST_ITEM * pxPrevious;
+};
+typedef struct xMINI_LIST_ITEM MiniListItem_t;
+
+
+
+
+typedef struct xLIST
+{
+
+ UBaseType_t uxNumberOfItems;
+ ListItem_t * pxIndex;
+ MiniListItem_t xListEnd;
+
+} List_t;
+# 386 "rtos/Source/include/list.h"
+void vListInitialise( List_t * const pxList ) ;
+# 397 "rtos/Source/include/list.h"
+void vListInitialiseItem( ListItem_t * const pxItem ) ;
+# 410 "rtos/Source/include/list.h"
+void vListInsert( List_t * const pxList, ListItem_t * const pxNewListItem ) ;
+# 431 "rtos/Source/include/list.h"
+void vListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem ) ;
+# 446 "rtos/Source/include/list.h"
+UBaseType_t uxListRemove( ListItem_t * const pxItemToRemove ) ;
+# 79 "rtos/Source/include/task.h" 2
+# 103 "rtos/Source/include/task.h"
+typedef void * TaskHandle_t;
+
+
+
+
+
+typedef BaseType_t (*TaskHookFunction_t)( void * );
+
+
+typedef enum
+{
+ eRunning = 0,
+ eReady,
+ eBlocked,
+ eSuspended,
+ eDeleted,
+ eInvalid
+} eTaskState;
+
+
+typedef enum
+{
+ eNoAction = 0,
+ eSetBits,
+ eIncrement,
+ eSetValueWithOverwrite,
+ eSetValueWithoutOverwrite
+} eNotifyAction;
+
+
+
+
+typedef struct xTIME_OUT
+{
+ BaseType_t xOverflowCount;
+ TickType_t xTimeOnEntering;
+} TimeOut_t;
+
+
+
+
+typedef struct xMEMORY_REGION
+{
+ void *pvBaseAddress;
+ uint32_t ulLengthInBytes;
+ uint32_t ulParameters;
+} MemoryRegion_t;
+
+
+
+
+typedef struct xTASK_PARAMETERS
+{
+ TaskFunction_t pvTaskCode;
+ const char * const pcName;
+ uint16_t usStackDepth;
+ void *pvParameters;
+ UBaseType_t uxPriority;
+ StackType_t *puxStackBuffer;
+ MemoryRegion_t xRegions[ 1 ];
+} TaskParameters_t;
+
+
+
+typedef struct xTASK_STATUS
+{
+ TaskHandle_t xHandle;
+ const char *pcTaskName;
+ UBaseType_t xTaskNumber;
+ eTaskState eCurrentState;
+ UBaseType_t uxCurrentPriority;
+ UBaseType_t uxBasePriority;
+ uint32_t ulRunTimeCounter;
+ StackType_t *pxStackBase;
+ uint16_t usStackHighWaterMark;
+} TaskStatus_t;
+
+
+typedef enum
+{
+ eAbortSleep = 0,
+ eStandardSleep,
+ eNoTasksWaitingTimeout
+} eSleepModeStatus;
+# 360 "rtos/Source/include/task.h"
+ BaseType_t xTaskCreate( TaskFunction_t pxTaskCode,
+       const char * const pcName,
+       const uint16_t usStackDepth,
+       void * const pvParameters,
+       UBaseType_t uxPriority,
+       TaskHandle_t * const pxCreatedTask ) ;
+# 476 "rtos/Source/include/task.h"
+ TaskHandle_t xTaskCreateStatic( TaskFunction_t pxTaskCode,
+         const char * const pcName,
+         const uint32_t ulStackDepth,
+         void * const pvParameters,
+         UBaseType_t uxPriority,
+         StackType_t * const puxStackBuffer,
+         StaticTask_t * const pxTaskBuffer ) ;
+# 602 "rtos/Source/include/task.h"
+void vTaskAllocateMPURegions( TaskHandle_t xTask, const MemoryRegion_t * const pxRegions ) ;
+# 643 "rtos/Source/include/task.h"
+void vTaskDelete( TaskHandle_t xTaskToDelete ) ;
+# 695 "rtos/Source/include/task.h"
+void vTaskDelay( const TickType_t xTicksToDelay ) ;
+# 754 "rtos/Source/include/task.h"
+void vTaskDelayUntil( TickType_t * const pxPreviousWakeTime, const TickType_t xTimeIncrement ) ;
+# 779 "rtos/Source/include/task.h"
+BaseType_t xTaskAbortDelay( TaskHandle_t xTask ) ;
+# 826 "rtos/Source/include/task.h"
+UBaseType_t uxTaskPriorityGet( TaskHandle_t xTask ) ;
+
+
+
+
+
+
+
+UBaseType_t uxTaskPriorityGetFromISR( TaskHandle_t xTask ) ;
+# 852 "rtos/Source/include/task.h"
+eTaskState eTaskGetState( TaskHandle_t xTask ) ;
+# 908 "rtos/Source/include/task.h"
+void vTaskGetInfo( TaskHandle_t xTask, TaskStatus_t *pxTaskStatus, BaseType_t xGetFreeStackSpace, eTaskState eState ) ;
+# 950 "rtos/Source/include/task.h"
+void vTaskPrioritySet( TaskHandle_t xTask, UBaseType_t uxNewPriority ) ;
+# 1001 "rtos/Source/include/task.h"
+void vTaskSuspend( TaskHandle_t xTaskToSuspend ) ;
+# 1050 "rtos/Source/include/task.h"
+void vTaskResume( TaskHandle_t xTaskToResume ) ;
+# 1079 "rtos/Source/include/task.h"
+BaseType_t xTaskResumeFromISR( TaskHandle_t xTaskToResume ) ;
+# 1112 "rtos/Source/include/task.h"
+void vTaskStartScheduler( void ) ;
+# 1168 "rtos/Source/include/task.h"
+void vTaskEndScheduler( void ) ;
+# 1219 "rtos/Source/include/task.h"
+void vTaskSuspendAll( void ) ;
+# 1273 "rtos/Source/include/task.h"
+BaseType_t xTaskResumeAll( void ) ;
+# 1288 "rtos/Source/include/task.h"
+TickType_t xTaskGetTickCount( void ) ;
+# 1304 "rtos/Source/include/task.h"
+TickType_t xTaskGetTickCountFromISR( void ) ;
+# 1318 "rtos/Source/include/task.h"
+UBaseType_t uxTaskGetNumberOfTasks( void ) ;
+# 1331 "rtos/Source/include/task.h"
+char *pcTaskGetName( TaskHandle_t xTaskToQuery ) ;
+# 1347 "rtos/Source/include/task.h"
+TaskHandle_t xTaskGetHandle( const char *pcNameToQuery ) ;
+# 1368 "rtos/Source/include/task.h"
+UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask ) ;
+# 1405 "rtos/Source/include/task.h"
+ void vTaskSetThreadLocalStoragePointer( TaskHandle_t xTaskToSet, BaseType_t xIndex, void *pvValue ) ;
+ void *pvTaskGetThreadLocalStoragePointer( TaskHandle_t xTaskToQuery, BaseType_t xIndex ) ;
+# 1421 "rtos/Source/include/task.h"
+BaseType_t xTaskCallApplicationTaskHook( TaskHandle_t xTask, void *pvParameter ) ;
+# 1430 "rtos/Source/include/task.h"
+TaskHandle_t xTaskGetIdleTaskHandle( void ) ;
+# 1529 "rtos/Source/include/task.h"
+UBaseType_t uxTaskGetSystemState( TaskStatus_t * const pxTaskStatusArray, const UBaseType_t uxArraySize, uint32_t * const pulTotalRunTime ) ;
+# 1576 "rtos/Source/include/task.h"
+void vTaskList( char * pcWriteBuffer ) ;
+# 1630 "rtos/Source/include/task.h"
+void vTaskGetRunTimeStats( char *pcWriteBuffer ) ;
+# 1711 "rtos/Source/include/task.h"
+BaseType_t xTaskGenericNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue ) ;
+# 1802 "rtos/Source/include/task.h"
+BaseType_t xTaskGenericNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, BaseType_t *pxHigherPriorityTaskWoken ) ;
+# 1879 "rtos/Source/include/task.h"
+BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait ) ;
+# 1980 "rtos/Source/include/task.h"
+void vTaskNotifyGiveFromISR( TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPriorityTaskWoken ) ;
+# 2049 "rtos/Source/include/task.h"
+uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait ) ;
+# 2065 "rtos/Source/include/task.h"
+BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );
+# 2086 "rtos/Source/include/task.h"
+BaseType_t xTaskIncrementTick( void ) ;
+# 2119 "rtos/Source/include/task.h"
+void vTaskPlaceOnEventList( List_t * const pxEventList, const TickType_t xTicksToWait ) ;
+void vTaskPlaceOnUnorderedEventList( List_t * pxEventList, const TickType_t xItemValue, const TickType_t xTicksToWait ) ;
+# 2133 "rtos/Source/include/task.h"
+void vTaskPlaceOnEventListRestricted( List_t * const pxEventList, TickType_t xTicksToWait, const BaseType_t xWaitIndefinitely ) ;
+# 2159 "rtos/Source/include/task.h"
+BaseType_t xTaskRemoveFromEventList( const List_t * const pxEventList ) ;
+BaseType_t xTaskRemoveFromUnorderedEventList( ListItem_t * pxEventListItem, const TickType_t xItemValue ) ;
+# 2170 "rtos/Source/include/task.h"
+void vTaskSwitchContext( void ) ;
+
+
+
+
+
+TickType_t uxTaskResetEventItemValue( void ) ;
+
+
+
+
+TaskHandle_t xTaskGetCurrentTaskHandle( void ) ;
+
+
+
+
+void vTaskSetTimeOutState( TimeOut_t * const pxTimeOut ) ;
+
+
+
+
+
+BaseType_t xTaskCheckForTimeOut( TimeOut_t * const pxTimeOut, TickType_t * const pxTicksToWait ) ;
+
+
+
+
+
+void vTaskMissedYield( void ) ;
+
+
+
+
+
+BaseType_t xTaskGetSchedulerState( void ) ;
+
+
+
+
+
+void vTaskPriorityInherit( TaskHandle_t const pxMutexHolder ) ;
+
+
+
+
+
+BaseType_t xTaskPriorityDisinherit( TaskHandle_t const pxMutexHolder ) ;
+
+
+
+
+UBaseType_t uxTaskGetTaskNumber( TaskHandle_t xTask ) ;
+
+
+
+
+
+void vTaskSetTaskNumber( TaskHandle_t xTask, const UBaseType_t uxHandle ) ;
+# 2237 "rtos/Source/include/task.h"
+void vTaskStepTick( const TickType_t xTicksToJump ) ;
+# 2253 "rtos/Source/include/task.h"
+eSleepModeStatus eTaskConfirmSleepModeStatus( void ) ;
+
+
+
+
+
+void *pvTaskIncrementMutexHeldCount( void ) ;
+# 40 "mods/modmachine.c" 2
+# 1 "misc/random.h" 1
+# 29 "misc/random.h"
+void rng_init0 (void);
+uint32_t rng_get (void);
+
+extern const mp_obj_fun_builtin_fixed_t machine_rng_get_obj;
+# 41 "mods/modmachine.c" 2
+# 1 "misc/gccollect.h" 1
+# 31 "misc/gccollect.h"
+extern uint32_t __data_start__;
+extern uint32_t __data_end__;
+extern uint32_t __bss_start__;
+extern uint32_t __bss_end__;
+extern uint32_t __heap_start__;
+extern uint32_t __heap_end__;
+extern uint32_t __stack_start__;
+extern uint32_t __stack_end__;
+
+void gc_collect(void);
+# 42 "mods/modmachine.c" 2
 # 1 "misc/mperror.h" 1
 # 30 "misc/mperror.h"
 extern const char mpexception_value_invalid_arguments[];
@@ -4878,173 +5225,136 @@ void mperror_enable_heartbeat (
 _Bool 
 # 43 "misc/mperror.h"
     mperror_is_heartbeat_enabled (void);
-# 36 "mods/pybpin.c" 2
-# 53 "mods/pybpin.c"
-pin_obj_t *pin_find_by_name(mp_obj_t name) {
-    mp_map_t *named_pins = mp_obj_dict_get_map((mp_obj_t)&pins_locals_dict);
+# 43 "mods/modmachine.c" 2
 
-    mp_map_elem_t *named_elem = mp_map_lookup(named_pins, name, MP_MAP_LOOKUP);
-    if (named_elem != 
-# 57 "mods/pybpin.c" 3 4
-                     ((void *)0) 
-# 57 "mods/pybpin.c"
-                          && named_elem->value != 
-# 57 "mods/pybpin.c" 3 4
-                                                  ((void *)0)
-# 57 "mods/pybpin.c"
-                                                      ) {
-        return (pin_obj_t *)named_elem->value;
-    }
 
-    mp_raise_ValueError("invalid argument(s) value");
+extern void* mpTaskHandle;
+extern void* svTaskHandle;
+extern void* xSimpleLinkSpawnTaskHndl;
+# 56 "mods/modmachine.c"
+static mp_obj_t machine_reset(void) {
+
+
+
+    NVIC_SystemReset();
+    return (((mp_obj_t)&mp_const_none_obj));
 }
+static const mp_obj_fun_builtin_fixed_t machine_reset_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_reset};
 
-void pin_config(pin_obj_t *self, uint alt, uint dir, uint mode) {
-    self->alt = alt;
-    self->dir = dir;
-    self->mode = mode;
+static mp_obj_t machine_info(uint n_args, const mp_obj_t *args) {
 
-
-
-
-    if(self->alt == 8)
     {
-        if((dir != 0) && (dir != 1))
-        {
-            goto invalid_args;
+        printf("---------------------------------------------\n");
+        printf("FreeRTOS\n");
+        printf("---------------------------------------------\n");
+        printf("Total heap: %u\n", ( ( size_t ) (1024 * 16) ));
+
+
+
+
+
+
+
+        uint32_t *pstack = (uint32_t *)&__stack_start__;
+        while (*pstack == 0x55555555) {
+            pstack++;
         }
-
-        PORT_Init(self->index, 8);
-        GPIO_Init(self->index, self->dir);
-    }
-    else
-    {
-        PORT_Init(self->index, self->alt);
+        printf("MAIN min free stack: %u\n", pstack - ((uint32_t *)&__stack_start__));
+        printf("---------------------------------------------\n");
     }
 
-    return;
-
-invalid_args:
-    mp_raise_ValueError("invalid argument(s) value");
+    return (((mp_obj_t)&mp_const_none_obj));
 }
-
-
-
-
-static void pin_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
-    pin_obj_t *self = self_in;
-
-    if(self->alt == 8)
-    {
-        mp_printf(print, "Pin('%q', dir=%s)", self->name, (self->dir == 0) ? "In" : "Out");
-    }
-    else
-    {
-        mp_printf(print, "Pin('%q', alf=%q)", self->name, self->alt);
-    }
-}
-
-static const mp_arg_t pin_init_args[] = {
-    { MP_QSTR_id, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = (((mp_obj_t)&mp_const_none_obj))} },
-    { MP_QSTR_dir, MP_ARG_INT, {.u_int = 0} },
-    { MP_QSTR_alt, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 8} },
-    { MP_QSTR_mode, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
-    { MP_QSTR_irq, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
-    { MP_QSTR_callback, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = (((mp_obj_t)&mp_const_none_obj))} },
-    { MP_QSTR_priority, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 7} }
-};
-static mp_obj_t pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
-
-    mp_map_t kw_args;
-    mp_map_init_fixed_table(&kw_args, n_kw, all_args + n_args);
-    mp_arg_val_t args[(sizeof(pin_init_args) / sizeof((pin_init_args)[0]))];
-    mp_arg_parse_all(n_args, all_args, &kw_args, (sizeof(pin_init_args) / sizeof((pin_init_args)[0])), pin_init_args, args);
-
-    pin_obj_t *self = pin_find_by_name(args[0].u_obj);
-
-    uint dir = args[1].u_int;
-
-    uint alt = args[2].u_int;
-
-    uint mode = args[3].u_int;
-
-    pin_config(self, alt, dir, mode);
-# 149 "mods/pybpin.c"
-    return self;
-}
-
-static mp_obj_t pin_value(size_t n_args, const mp_obj_t *args) {
-    pin_obj_t *self = args[0];
-    if (n_args == 1) {
-
-        return ((mp_obj_t)((((mp_uint_t)(GPIO_GetBit(self->index))) << 1) | 1));
-    } else {
-
-        if (mp_obj_is_true(args[1])) {
-            self->value = 1;
-            GPIO_SetBit(self->index);
-        } else {
-            self->value = 0;
-            GPIO_ClrBit(self->index);
-        }
-
-        return (((mp_obj_t)&mp_const_none_obj));
-    }
-}
-static const mp_obj_fun_builtin_var_t pin_value_obj = {{&mp_type_fun_builtin_var}, 
-# 170 "mods/pybpin.c" 3 4
+static const mp_obj_fun_builtin_var_t machine_info_obj = {{&mp_type_fun_builtin_var}, 
+# 89 "mods/modmachine.c" 3 4
       0
-# 170 "mods/pybpin.c"
-      , 1, 2, .fun.var = pin_value};
+# 89 "mods/modmachine.c"
+      , 0, 1, .fun.var = machine_info};
 
-static mp_obj_t pin_high(mp_obj_t self_in) {
-    pin_obj_t *self = self_in;
+static mp_obj_t machine_freq(void) {
+    return mp_obj_new_int(192000000);
+}
+static const mp_obj_fun_builtin_fixed_t machine_freq_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_freq};
 
-    GPIO_SetBit(self->index);
+static mp_obj_t machine_unique_id(void) {
+
+
+    uint8_t mac[8] = {0x11, 0x22, 0x33};
+    return mp_obj_new_bytes(mac, 8);
+}
+static const mp_obj_fun_builtin_fixed_t machine_unique_id_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_unique_id};
+
+static mp_obj_t machine_main(mp_obj_t main) {
+    if ((MP_OBJ_IS_QSTR(main) || (MP_OBJ_IS_OBJ(main) && (((mp_obj_base_t*)((void*)main))->type == (&mp_type_str))))) {
+        (mp_state_ctx.vm.machine_config_main) = main;
+    } else {
+        mp_raise_ValueError(mpexception_value_invalid_arguments);
+    }
+    return (((mp_obj_t)&mp_const_none_obj));
+}
+const mp_obj_fun_builtin_fixed_t machine_main_obj = {{&mp_type_fun_builtin_1}, .fun._1 = machine_main};
+
+static mp_obj_t machine_idle(void) {
+    __WFI();
+    return (((mp_obj_t)&mp_const_none_obj));
+}
+static const mp_obj_fun_builtin_fixed_t machine_idle_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_idle};
+
+static mp_obj_t machine_sleep (void) {
 
     return (((mp_obj_t)&mp_const_none_obj));
 }
-static const mp_obj_fun_builtin_fixed_t pin_high_obj = {{&mp_type_fun_builtin_1}, .fun._1 = pin_high};
+static const mp_obj_fun_builtin_fixed_t machine_sleep_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_sleep};
 
-static mp_obj_t pin_low(mp_obj_t self_in) {
-    pin_obj_t *self = self_in;
-
-    GPIO_ClrBit(self->index);
+static mp_obj_t machine_deepsleep (void) {
 
     return (((mp_obj_t)&mp_const_none_obj));
 }
-static const mp_obj_fun_builtin_fixed_t pin_low_obj = {{&mp_type_fun_builtin_1}, .fun._1 = pin_low};
+static const mp_obj_fun_builtin_fixed_t machine_deepsleep_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_deepsleep};
 
-static mp_obj_t pin_toggle(mp_obj_t self_in) {
-    pin_obj_t *self = self_in;
+static mp_obj_t machine_reset_cause (void) {
 
-    if(GPIO_GetBit(self->index)) GPIO_ClrBit(self->index);
-    else GPIO_SetBit(self->index);
-
-    return (((mp_obj_t)&mp_const_none_obj));
+    return 0;
 }
-static const mp_obj_fun_builtin_fixed_t pin_toggle_obj = {{&mp_type_fun_builtin_1}, .fun._1 = pin_toggle};
+static const mp_obj_fun_builtin_fixed_t machine_reset_cause_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_reset_cause};
+
+static mp_obj_t machine_wake_reason (void) {
+
+    return 0;
+}
+static const mp_obj_fun_builtin_fixed_t machine_wake_reason_obj = {{&mp_type_fun_builtin_0}, .fun._0 = machine_wake_reason};
+
+static const mp_rom_map_elem_t machine_module_globals_table[] = {
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR___name__)) << 2) | 2)), ((mp_obj_t)((((mp_uint_t)(MP_QSTR_umachine)) << 2) | 2)) },
+
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_reset)) << 2) | 2)), (&machine_reset_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_info)) << 2) | 2)), (&machine_info_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_freq)) << 2) | 2)), (&machine_freq_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_unique_id)) << 2) | 2)), (&machine_unique_id_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_main)) << 2) | 2)), (&machine_main_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_rng)) << 2) | 2)), (&machine_rng_get_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_idle)) << 2) | 2)), (&machine_idle_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_sleep)) << 2) | 2)), (&machine_sleep_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_deepsleep)) << 2) | 2)), (&machine_deepsleep_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_reset_cause)) << 2) | 2)), (&machine_reset_cause_obj) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_wake_reason)) << 2) | 2)), (&machine_wake_reason_obj) },
 
 
-static const mp_rom_map_elem_t pin_locals_dict_table[] = {
-
-    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_low)) << 2) | 2)), (&pin_low_obj) },
-    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_high)) << 2) | 2)), (&pin_high_obj) },
-    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_value)) << 2) | 2)), (&pin_value_obj) },
-    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_toggle)) << 2) | 2)), (&pin_toggle_obj) },
 
 
-    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_IN)) << 2) | 2)), ((mp_obj_t)((((mp_uint_t)(0)) << 1) | 1)) },
-    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_OUT)) << 2) | 2)), ((mp_obj_t)((((mp_uint_t)(1)) << 1) | 1)) },
+
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_Pin)) << 2) | 2)), (&pyb_pin_type) },
+
+
+
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_UART)) << 2) | 2)), (&pyb_uart_type) },
+    { ((mp_obj_t)((((mp_uint_t)(MP_QSTR_Timer)) << 2) | 2)), (&pyb_timer_type) },
+# 184 "mods/modmachine.c"
 };
 
-static const mp_obj_dict_t pin_locals_dict = { .base = {&mp_type_dict}, .map = { .all_keys_are_qstrs = 1, .is_fixed = 1, .is_ordered = 1, .used = (sizeof(pin_locals_dict_table) / sizeof((pin_locals_dict_table)[0])), .alloc = (sizeof(pin_locals_dict_table) / sizeof((pin_locals_dict_table)[0])), .table = (mp_map_elem_t*)(mp_rom_map_elem_t*)pin_locals_dict_table, }, };
+static const mp_obj_dict_t machine_module_globals = { .base = {&mp_type_dict}, .map = { .all_keys_are_qstrs = 1, .is_fixed = 1, .is_ordered = 1, .used = (sizeof(machine_module_globals_table) / sizeof((machine_module_globals_table)[0])), .alloc = (sizeof(machine_module_globals_table) / sizeof((machine_module_globals_table)[0])), .table = (mp_map_elem_t*)(mp_rom_map_elem_t*)machine_module_globals_table, }, };
 
-
-const mp_obj_type_t pyb_pin_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_Pin,
-    .print = pin_print,
-    .make_new = pin_make_new,
-    .locals_dict = (mp_obj_t)&pin_locals_dict,
+const mp_obj_module_t machine_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t*)&machine_module_globals,
 };

@@ -84,6 +84,10 @@ Q(LookupError)
 
 Q(LookupError)
 
+Q(MODE_COUNTER)
+
+Q(MODE_TIMER)
+
 Q(MemoryError)
 
 Q(MemoryError)
@@ -151,6 +155,10 @@ Q(SystemExit)
 Q(TextIOWrapper)
 
 Q(TextIOWrapper)
+
+Q(Timer)
+
+Q(Timer)
 
 Q(TypeError)
 
@@ -538,6 +546,8 @@ Q(callable)
 
 Q(callback)
 
+Q(callback)
+
 Q(chdir)
 
 Q(chdir)
@@ -784,6 +794,8 @@ Q(id)
 
 Q(id)
 
+Q(id)
+
 Q(idle)
 
 Q(ilistdir)
@@ -1002,6 +1014,8 @@ Q(mode)
 
 Q(mode)
 
+Q(mode)
+
 Q(modify)
 
 Q(module)
@@ -1054,6 +1068,12 @@ Q(path)
 
 Q(pend_throw)
 
+Q(period)
+
+Q(period)
+
+Q(pin)
+
 Q(poll)
 
 Q(poll)
@@ -1073,6 +1093,8 @@ Q(pow)
 Q(print)
 
 Q(print_exception)
+
+Q(priority)
 
 Q(priority)
 
@@ -1250,6 +1272,8 @@ Q(start)
 
 Q(start)
 
+Q(start)
+
 Q(start_new_thread)
 
 Q(startswith)
@@ -1279,6 +1303,8 @@ Q(stdin)
 Q(stdout)
 
 Q(step)
+
+Q(stop)
 
 Q(stop)
 

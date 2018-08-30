@@ -63,7 +63,7 @@ __isr_vector:
     .long   Default_Handler
     .long   AUDIO_Handler
     .long   N9_IRQ_Handler
-    .long   GPT4_Handler
+    .long   GPT_Handler
     .long   Default_Handler
     .long   Default_Handler
     .long   SPIM_Handler
@@ -233,7 +233,7 @@ pre_cache_init:
 	def_default_handler    GPT3_Handler
 	def_default_handler    AUDIO_Handler
 	def_default_handler    N9_IRQ_Handler
-	def_default_handler    GPT4_Handler
+    def_default_handler    GPT_Handler
 	def_default_handler    SPIM_Handler
 
     def_default_handler    Default_Handler

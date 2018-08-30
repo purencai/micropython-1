@@ -146,7 +146,7 @@ soft_reset:
     if (!ret) {
         mperror_signal_error();     // flash the system led
     }
-GPIO_SetBit(GPIO35);
+
     // at this point everything is fully configured and initialised.
 
     // run main.py

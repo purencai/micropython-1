@@ -17,6 +17,7 @@ void GPIO_Init(uint32_t pin, uint32_t dir);
 
 void GPIO_SetBit(uint32_t pin);
 void GPIO_ClrBit(uint32_t pin);
+void GPIO_InvBit(uint32_t pin);
 uint32_t GPIO_GetBit(uint32_t pin);
 
 

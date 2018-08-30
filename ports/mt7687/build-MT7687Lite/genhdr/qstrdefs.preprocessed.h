@@ -3138,6 +3138,31 @@ void SystemCoreClockUpdate(void);
 # 57 "chip/Include/MT7687.h" 2
 
 
+
+
+
+
+typedef struct {
+ volatile uint32_t IF;
+ volatile uint32_t IE;
+ volatile uint32_t RESERVED1[2];
+ volatile uint32_t T0CR;
+ volatile uint32_t T0IV;
+ volatile uint32_t RESERVED2[2];
+ volatile uint32_t T1CR;
+ volatile uint32_t T1IV;
+ volatile uint32_t RESERVED3[2];
+ volatile uint32_t T2CR;
+ volatile const uint32_t T2V;
+ volatile uint32_t RESERVED4[2];
+ volatile const uint32_t T0V;
+ volatile const uint32_t T1V;
+ volatile uint32_t RESERVED5[6];
+ volatile uint32_t T4CR;
+ volatile uint32_t T4IV;
+ volatile const uint32_t T4V;
+} TIMR_TypeDef;
+# 107 "chip/Include/MT7687.h"
 typedef struct {
  union {
   volatile const uint32_t RBR;
@@ -3160,7 +3185,50 @@ typedef struct {
     volatile const uint32_t RSV;
     volatile uint32_t HSP;
 } UART_TypeDef;
-# 142 "chip/Include/MT7687.h"
+# 191 "chip/Include/MT7687.h"
+typedef struct {
+ volatile uint32_t CR0;
+ volatile uint32_t CR1;
+ volatile uint32_t CR2;
+ volatile uint32_t CR3;
+ volatile uint32_t CR4;
+      uint32_t RESERVED0[(0x830D0000 - 0x83008190)/4 -1];
+ volatile uint32_t DR;
+ volatile uint32_t IE;
+ union {
+  volatile uint32_t IF;
+  volatile uint32_t FFCLR;
+ };
+ volatile uint32_t SRRDY;
+      uint32_t RESERVED1;
+ volatile uint32_t LSR;
+      uint32_t RESERVED2[18];
+ volatile uint32_t FFTRILVL;
+} ADC_TypeDef;
+
+
+
+
+typedef struct {
+ volatile uint32_t GCR;
+      uint32_t RESERVED1[63];
+ struct {
+  volatile uint32_t CR;
+  volatile uint32_t S0;
+  volatile uint32_t S1;
+       uint32_t RESERVED2;
+ } CH[40];
+} PWM_TypeDef;
+# 263 "chip/Include/MT7687.h"
+typedef struct {
+    volatile uint32_t CR;
+         uint32_t RESERVED0[3];
+    volatile uint32_t OLEN;
+    volatile uint32_t ILEN;
+         uint32_t RESERVED1[(0x800-0x18)/4];
+    volatile uint32_t DATA[40];
+} SFC_TypeDef;
+# 280 "chip/Include/MT7687.h"
 typedef struct {
     volatile uint32_t CR;
     volatile uint32_t OP;
@@ -3178,16 +3246,7 @@ typedef struct {
     volatile uint32_t ENTRY_N[16];
     volatile uint32_t END_ENTRY_N[16];
 } CACHE_TypeDef;
-# 183 "chip/Include/MT7687.h"
-typedef struct {
-    volatile uint32_t CR;
-         uint32_t RESERVED0[3];
-    volatile uint32_t OLEN;
-    volatile uint32_t ILEN;
-         uint32_t RESERVED1[(0x800-0x18)/4];
-    volatile uint32_t DATA[40];
-} SFC_TypeDef;
-# 230 "chip/Include/MT7687.h"
+# 355 "chip/Include/MT7687.h"
 # 1 "chip/Include/MT7687_GPIO.h" 1
 # 14 "chip/Include/MT7687_GPIO.h"
 void PORT_Init(uint32_t pin, uint32_t func);
@@ -3196,28 +3255,56 @@ void GPIO_Init(uint32_t pin, uint32_t dir);
 
 void GPIO_SetBit(uint32_t pin);
 void GPIO_ClrBit(uint32_t pin);
+void GPIO_InvBit(uint32_t pin);
 uint32_t GPIO_GetBit(uint32_t pin);
-# 231 "chip/Include/MT7687.h" 2
+# 356 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_TIMR.h" 1
-# 232 "chip/Include/MT7687.h" 2
+
+
+
+
+void TIMR_Init(uint32_t TIMRx, uint32_t period, uint32_t int_en);
+void TIMR_Start(uint32_t TIMRx);
+void TIMR_Stop(uint32_t TIMRx);
+
+void TIMR_Restart(uint32_t TIMRx);
+
+void TIMR_SetPeriod(uint32_t TIMRx, uint32_t period);
+uint32_t TIMR_CurrentValue(uint32_t TIMRx);
+# 357 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_UART.h" 1
 
 
 
 
 void UART_Init(UART_TypeDef * UARTx, uint32_t baudrate, uint8_t databits, uint8_t parity, uint8_t stopbits);
-# 233 "chip/Include/MT7687.h" 2
+# 358 "chip/Include/MT7687.h" 2
+# 1 "chip/Include/MT7687_SPI.h" 1
+# 359 "chip/Include/MT7687.h" 2
+# 1 "chip/Include/MT7687_I2C.h" 1
+# 360 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_ADC.h" 1
-# 234 "chip/Include/MT7687.h" 2
+# 361 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_PWM.h" 1
-# 235 "chip/Include/MT7687.h" 2
+
+
+
+
+void PWM_ClockSelect(uint32_t clksrc);
+
+void PWM_Init(uint32_t chn, uint16_t on_time, uint16_t off_time, uint32_t global_start);
+void PWM_Start(uint32_t chn);
+void PWM_Stop(uint32_t chn);
+void PWM_GStart(void);
+void PWM_GStop(void);
+# 362 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_Flash.h" 1
 
 
 
 __attribute__((__section__(".tcmTEXT")))
 void FLASH_PageWrite(uint32_t addr, uint32_t *data);
-# 236 "chip/Include/MT7687.h" 2
+# 363 "chip/Include/MT7687.h" 2
 # 200 "./mpconfigport.h" 2
 
 
@@ -3390,6 +3477,10 @@ Q(LookupError)
 
 Q(LookupError)
 
+Q(MODE_COUNTER)
+
+Q(MODE_TIMER)
+
 Q(MemoryError)
 
 Q(MemoryError)
@@ -3457,6 +3548,10 @@ Q(SystemExit)
 Q(TextIOWrapper)
 
 Q(TextIOWrapper)
+
+Q(Timer)
+
+Q(Timer)
 
 Q(TypeError)
 
@@ -3844,6 +3939,8 @@ Q(callable)
 
 Q(callback)
 
+Q(callback)
+
 Q(chdir)
 
 Q(chdir)
@@ -4090,6 +4187,8 @@ Q(id)
 
 Q(id)
 
+Q(id)
+
 Q(idle)
 
 Q(ilistdir)
@@ -4308,6 +4407,8 @@ Q(mode)
 
 Q(mode)
 
+Q(mode)
+
 Q(modify)
 
 Q(module)
@@ -4360,6 +4461,12 @@ Q(path)
 
 Q(pend_throw)
 
+Q(period)
+
+Q(period)
+
+Q(pin)
+
 Q(poll)
 
 Q(poll)
@@ -4379,6 +4486,8 @@ Q(pow)
 Q(print)
 
 Q(print_exception)
+
+Q(priority)
 
 Q(priority)
 
@@ -4556,6 +4665,8 @@ Q(start)
 
 Q(start)
 
+Q(start)
+
 Q(start_new_thread)
 
 Q(startswith)
@@ -4585,6 +4696,8 @@ Q(stdin)
 Q(stdout)
 
 Q(step)
+
+Q(stop)
 
 Q(stop)
 

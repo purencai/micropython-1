@@ -56,6 +56,54 @@ typedef enum IRQn {
 #include "system_MT7687.h"
 
 
+#if   defined ( __CC_ARM )
+  #pragma anon_unions
+#endif
+
+typedef struct {
+	__IO uint32_t IF;
+	__IO uint32_t IE;
+	__IO uint32_t RESERVED1[2];
+	__IO uint32_t T0CR;
+	__IO uint32_t T0IV;			// Initial Value
+	__IO uint32_t RESERVED2[2];
+	__IO uint32_t T1CR;
+	__IO uint32_t T1IV;
+	__IO uint32_t RESERVED3[2];
+	__IO uint32_t T2CR;
+	__I  uint32_t T2V;
+	__IO uint32_t RESERVED4[2];
+	__I  uint32_t T0V;
+	__I  uint32_t T1V;
+	__IO uint32_t RESERVED5[6];
+	__IO uint32_t T4CR;
+	__IO uint32_t T4IV;
+	__I  uint32_t T4V;
+} TIMR_TypeDef;
+
+
+#define TIMR_IF_T0_Pos			0
+#define TIMR_IF_T0_Msk			(0x01 << TIMR_IF_T0_Pos)
+#define TIMR_IF_T1_Pos			1
+#define TIMR_IF_T1_Msk			(0x01 << TIMR_IF_T1_Pos)
+
+#define TIMR_IE_T0_Pos			0
+#define TIMR_IE_T0_Msk			(0x01 << TIMR_IE_T0_Pos)
+#define TIMR_IE_T1_Pos			1
+#define TIMR_IE_T1_Msk			(0x01 << TIMR_IE_T1_Pos)
+
+#define TIMR_CR_EN_Pos			0
+#define TIMR_CR_EN_Msk			(0x01 << TIMR_CR_EN_Pos)
+#define TIMR_CR_AR_Pos			1		// Auto Repeat
+#define TIMR_CR_AR_Msk			(0x01 << TIMR_CR_AR_Pos)
+#define TIMR_CR_32K_Pos			2		// 时基：0 1KHz   1 32.768KHz
+#define TIMR_CR_32K_Msk			(0x01 << TIMR_CR_32K_Pos)
+#define TIMR_CR_RESTART_Pos		3
+#define TIMR_CR_RESTART_Msk		(0x01 << TIMR_CR_RESTART_Pos)
+
+
+
+
 typedef struct {
 	union {
 		__I  uint32_t RBR;                
@@ -139,6 +187,96 @@ typedef struct {
 
 
 
+
+typedef struct {
+	__IO uint32_t CR0;
+	__IO uint32_t CR1;
+	__IO uint32_t CR2;
+	__IO uint32_t CR3;
+	__IO uint32_t CR4;
+	     uint32_t RESERVED0[(0x830D0000 - 0x83008190)/4 -1];
+	__IO uint32_t DR;
+	__IO uint32_t IE;
+	union {
+		__IO uint32_t IF;
+		__IO uint32_t FFCLR;
+	};
+	__IO uint32_t SRRDY;
+	     uint32_t RESERVED1;
+	__IO uint32_t LSR;
+	     uint32_t RESERVED2[18];
+	__IO uint32_t FFTRILVL;				// FIFO Trigger Level
+} ADC_TypeDef;
+
+
+
+
+typedef struct {
+	__IO uint32_t GCR;					// global control
+	     uint32_t RESERVED1[63];
+	struct {
+		__IO uint32_t CR;
+		__IO uint32_t S0;				// State 0
+		__IO uint32_t S1;
+		     uint32_t RESERVED2;
+	} CH[40];
+} PWM_TypeDef;
+
+
+#define PWM_GCR_START_Pos		0		// 置位时，所有置位global start en的通道全部一起启动
+#define PWM_GCR_START_Msk		(0x01 << PWM_GCR_START_Pos)
+#define PWM_GCR_CLKSRC_Pos		1		// 0 32KHz   1 2MHz   2 XTAL
+#define PWM_GCR_CLKSRC_Msk		(0x03 << PWM_GCR_CLKSRC_Pos)
+#define PWM_GCR_RESET_Pos		3
+#define PWM_GCR_RESET_Msk		(0x01 << PWM_GCR_RESET_Pos)
+
+#define PWM_CR_START_Pos		0
+#define PWM_CR_START_Msk		(0x01 << PWM_CR_START_Pos)
+#define PWM_CR_REPLAY_EN_Pos	1
+#define PWM_CR_REPLAY_EN_Msk	(0x01 << PWM_CR_REPLAY_EN_Pos)
+#define PWM_CR_POLARITY_Pos		2		// 0 active high   1 active low
+#define PWM_CR_POLARITY_Msk		(0x01 << PWM_CR_POLARITY_Pos)
+#define PWM_CR_OPEN_DRAIN_Pos	3
+#define PWM_CR_OPEN_DRAIN_Msk	(0x01 << PWM_CR_OPEN_DRAIN_Pos)
+#define PWM_CR_CLKEN_Pos		4
+#define PWM_CR_CLKEN_Msk		(0x01 << PWM_CR_CLKEN_Pos)
+#define PWM_CR_GLOBAL_START_EN_Pos 	5
+#define PWM_CR_GLOBAL_START_EN_Msk 	(0x01 << PWM_CR_GLOBAL_START_EN_Pos)
+#define PWM_CR_S0_STAY_CYCLE_Pos	8
+#define PWM_CR_S0_STAY_CYCLE_Msk	(0xFFF<< PWM_CR_S0_STAY_CYCLE_Pos)
+#define PWM_CR_S1_STAY_CYCLE_Pos	20
+#define PWM_CR_S1_STAY_CYCLE_Msk	(0xFFF<< PWM_CR_S1_STAY_CYCLE_Pos)
+
+#define PWM_S0_ON_TIME_Pos		0
+#define PWM_S0_ON_TIME_Msk		(0xFFFF << PWM_S0_ON_TIME_Pos)
+#define PWM_S0_OFF_TIME_Pos		16
+#define PWM_S0_OFF_TIME_Msk		(0xFFFF << PWM_S0_OFF_TIME_Pos)
+
+#define PWM_S1_ON_TIME_Pos		0
+#define PWM_S1_ON_TIME_Msk		(0xFFFF << PWM_S1_ON_TIME_Pos)
+#define PWM_S1_OFF_TIME_Pos		16
+#define PWM_S1_OFF_TIME_Msk		(0xFFFF << PWM_S1_OFF_TIME_Pos)
+
+
+
+
+typedef struct {
+    __IO uint32_t CR;
+         uint32_t RESERVED0[3];
+    __IO uint32_t OLEN;                 // output data length
+    __IO uint32_t ILEN;                 // input  data length
+         uint32_t RESERVED1[(0x800-0x18)/4];
+    __IO uint32_t DATA[40];
+} SFC_TypeDef;
+
+#define SFC_CR_WIP_Pos          0
+#define SFC_CR_WIP_Msk          (0x01 << SFC_CR_WIP_Pos)
+#define SFC_CR_WIPRdy_Pos       1
+#define SFC_CR_WIPRdy_Msk       (0x01 << SFC_CR_WIPRdy_Pos)
+
+
+
+
 typedef struct {
     __IO uint32_t CR;
     __IO uint32_t OP;
@@ -179,23 +317,6 @@ typedef struct {
 
 
 
-
-typedef struct {
-    __IO uint32_t CR;
-         uint32_t RESERVED0[3];
-    __IO uint32_t OLEN;                 // output data length
-    __IO uint32_t ILEN;                 // input  data length
-         uint32_t RESERVED1[(0x800-0x18)/4];
-    __IO uint32_t DATA[40];
-} SFC_TypeDef;
-
-#define SFC_CR_WIP_Pos          0
-#define SFC_CR_WIP_Msk          (0x01 << SFC_CR_WIP_Pos)
-#define SFC_CR_WIPRdy_Pos       1
-#define SFC_CR_WIPRdy_Msk       (0x01 << SFC_CR_WIPRdy_Pos)
-
-
-
 /* AON */
 #define TOP_CFG_AON_BASE            0x81021000
 #define IOT_PINMUX_AON_BASE         0x81023000
@@ -214,22 +335,28 @@ typedef struct {
 #define CM4_CONFIG_AON_BASE         0x8300C000
 #define CM4_UART1_BASE              0x83030000
 #define CM4_UART2_BASE              0x83040000
-#define CM4_GPT_BASE                0x83050000
+#define CM4_TIMR_BASE               0x83050000
 #define CM4_SFC_BASE                0x83070000  // Serial Flash Controller
 #define CM4_ADC_BASE                0x830D0000
+#define CM4_PWM_BASE				0x8300A600
 
+#define TIMR	((TIMR_TypeDef *)   CM4_TIMR_BASE)
 
 #define UART1   ((UART_TypeDef *)   CM4_UART1_BASE)
 #define UART2   ((UART_TypeDef *)   CM4_UART2_BASE)
 
-#define CACHE   ((CACHE_TypeDef *)  CM4_CACHE_BASE)
+#define PWM		((PWM_TypeDef  *)   CM4_PWM_BASE)
 
 #define SFC     ((SFC_TypeDef *)    CM4_SFC_BASE)
+
+#define CACHE   ((CACHE_TypeDef *)  CM4_CACHE_BASE)
 
 
 #include "MT7687_GPIO.h"
 #include "MT7687_TIMR.h"
 #include "MT7687_UART.h"
+#include "MT7687_SPI.h"
+#include "MT7687_I2C.h"
 #include "MT7687_ADC.h"
 #include "MT7687_PWM.h"
 #include "MT7687_Flash.h"
