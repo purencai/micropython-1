@@ -660,6 +660,10 @@ Q(dumps)
 
 Q(dupterm)
 
+Q(duty)
+
+Q(duty)
+
 Q(enable)
 
 Q(enable)
@@ -723,6 +727,10 @@ Q(format)
 Q(format)
 
 Q(freq)
+
+Q(frequency)
+
+Q(frequency)
 
 Q(from_bytes)
 
@@ -1061,14 +1069,6 @@ Q(object)
 Q(object)
 
 Q(oct)
-
-Q(off_time)
-
-Q(off_time)
-
-Q(on_time)
-
-Q(on_time)
 
 Q(open)
 

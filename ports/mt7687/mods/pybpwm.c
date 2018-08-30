@@ -88,8 +88,8 @@ typedef struct _pyb_pwm_obj_t {
     mp_obj_base_t base;
     pyb_pwm_id_t pwm_id;
     PWM_TypeDef *PWMx;
-    uint on_time;
-    uint off_time;
+    uint frequency;
+    uint duty;
     bool global_start;
 } pyb_pwm_obj_t;
 
@@ -152,14 +152,14 @@ STATIC pyb_pwm_obj_t pyb_pwm_obj[PYB_NUM_PWMS] = { { .pwm_id = PYB_PWM_0,  .PWMx
 STATIC void pyb_pwm_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     pyb_pwm_obj_t *self = self_in;
 
-    mp_printf(print, "PWM(%d, on_time=%d, off_time=%d, global_start=%s)", self->pwm_id, self->on_time, self->off_time, self->global_start ? "True" : "False");
+    mp_printf(print, "PWM(%d, frequency=%d, duty=%%%d.%d, global_start=%s)", self->pwm_id, self->frequency, self->duty/10, self->duty%10, self->global_start ? "True" : "False");
 }
 
 STATIC const mp_arg_t pyb_pwm_init_args[] = {
-    { MP_QSTR_id,           MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 1} },
-    { MP_QSTR_on_time,      MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 20000} },
-    { MP_QSTR_off_time,     MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 20000} },
-    { MP_QSTR_global_start,                   MP_ARG_BOOL, {.u_bool= false} },
+    { MP_QSTR_id,        MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 1} },
+    { MP_QSTR_frequency, MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 1000} },
+    { MP_QSTR_duty,      MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 250} },
+    { MP_QSTR_global_start,                MP_ARG_BOOL, {.u_bool= false} },
 };
 STATIC mp_obj_t pyb_pwm_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     // parse args
@@ -176,9 +176,9 @@ STATIC mp_obj_t pyb_pwm_make_new(const mp_obj_type_t *type, size_t n_args, size_
     pyb_pwm_obj_t *self = &pyb_pwm_obj[pwm_id];
     self->base.type = &pyb_pwm_type;
 
-    self->on_time  = args[1].u_int;
-    self->off_time = args[2].u_int;
-    if((self->on_time > 65535) || (self->off_time > 65535))
+    self->frequency = args[1].u_int;
+    self->duty = args[2].u_int;
+    if((self->frequency > 100000) || (self->frequency < 2000000/65536) || (self->duty > 1000))
     {
         goto invalid_args;
     }
@@ -231,7 +231,9 @@ STATIC mp_obj_t pyb_pwm_make_new(const mp_obj_type_t *type, size_t n_args, size_
 
     PWM_ClockSelect(PWM_CLKSRC_2MHz);
 
-    PWM_Init(self->pwm_id, self->on_time, self->off_time, self->global_start);
+    uint16_t on_time  = (2000000/self->frequency) * self->duty / 1000,
+             off_time = (2000000/self->frequency) * (1000 - self->duty) / 1000;
+    PWM_Init(self->pwm_id, on_time, off_time, self->global_start);
 
     return self;
 
@@ -259,8 +261,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_pwm_stop_obj, pyb_pwm_stop);
 
 STATIC mp_obj_t pyb_pwm_gstart(mp_obj_t self_in) {
     pyb_pwm_obj_t *self = self_in;
+    self = self;
 
-    PWM_Start(self->pwm_id);
+    PWM_GStart();
 
     return mp_const_none;
 }
@@ -268,38 +271,47 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_pwm_gstart_obj, pyb_pwm_gstart);
 
 STATIC mp_obj_t pyb_pwm_gstop(mp_obj_t self_in) {
     pyb_pwm_obj_t *self = self_in;
+    self = self;
 
-    PWM_Stop(self->pwm_id);
+    PWM_GStop();
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_pwm_gstop_obj, pyb_pwm_gstop);
 
-STATIC mp_obj_t pyb_pwm_on_time(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t pyb_pwm_frequency(size_t n_args, const mp_obj_t *args) {
     pyb_pwm_obj_t *self = args[0];
     if (n_args == 1) {
-        return MP_OBJ_NEW_SMALL_INT(self->on_time);
+        return MP_OBJ_NEW_SMALL_INT(self->frequency);
     } else {
-        self->on_time = mp_obj_get_int(args[1]);
-        PWM_SetOnTime(self->pwm_id, self->on_time);
+        self->frequency = mp_obj_get_int(args[1]);
+
+        uint16_t on_time  = (2000000/self->frequency) * self->duty / 1000,
+                 off_time = (2000000/self->frequency) * (1000 - self->duty) / 1000;
+        PWM_SetOnTime(self->pwm_id, on_time);
+        PWM_SetOffTime(self->pwm_id, off_time);
 
         return mp_const_none;
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(pyb_pwm_on_time_obj, 1, 2, pyb_pwm_on_time);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(pyb_pwm_frequency_obj, 1, 2, pyb_pwm_frequency);
 
-STATIC mp_obj_t pyb_pwm_off_time(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t pyb_pwm_duty(size_t n_args, const mp_obj_t *args) {
     pyb_pwm_obj_t *self = args[0];
     if (n_args == 1) {
-        return MP_OBJ_NEW_SMALL_INT(self->off_time);
+        return MP_OBJ_NEW_SMALL_INT(self->duty);
     } else {
-        self->off_time = mp_obj_get_int(args[1]);
-        PWM_SetOffTime(self->pwm_id, self->off_time);
+        self->duty = mp_obj_get_int(args[1]);
+
+        uint16_t on_time  = (2000000/self->frequency) * self->duty / 1000,
+                 off_time = (2000000/self->frequency) * (1000 - self->duty) / 1000;
+        PWM_SetOnTime(self->pwm_id, on_time);
+        PWM_SetOffTime(self->pwm_id, off_time);
 
         return mp_const_none;
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(pyb_pwm_off_time_obj, 1, 2, pyb_pwm_off_time);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(pyb_pwm_duty_obj, 1, 2, pyb_pwm_duty);
 
 
 STATIC const mp_rom_map_elem_t pyb_pwm_locals_dict_table[] = {
@@ -308,8 +320,8 @@ STATIC const mp_rom_map_elem_t pyb_pwm_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_stop),                MP_ROM_PTR(&pyb_pwm_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_gstart),              MP_ROM_PTR(&pyb_pwm_gstart_obj) },
     { MP_ROM_QSTR(MP_QSTR_gstop),               MP_ROM_PTR(&pyb_pwm_gstop_obj) },
-    { MP_ROM_QSTR(MP_QSTR_on_time),             MP_ROM_PTR(&pyb_pwm_on_time_obj) },
-    { MP_ROM_QSTR(MP_QSTR_off_time),            MP_ROM_PTR(&pyb_pwm_off_time_obj) },
+    { MP_ROM_QSTR(MP_QSTR_frequency),           MP_ROM_PTR(&pyb_pwm_frequency_obj) },
+    { MP_ROM_QSTR(MP_QSTR_duty),                MP_ROM_PTR(&pyb_pwm_duty_obj) },
 
     // class constants
     { MP_ROM_QSTR(MP_QSTR_CLKSRC_32KHz),        MP_ROM_INT(PWM_CLKSRC_32KHz) },
