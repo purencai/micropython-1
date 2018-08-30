@@ -3297,6 +3297,11 @@ void PWM_Start(uint32_t chn);
 void PWM_Stop(uint32_t chn);
 void PWM_GStart(void);
 void PWM_GStop(void);
+
+void PWM_SetOnTime(uint32_t chn, uint16_t on_time);
+uint16_t PWM_GetOnTime(uint32_t chn);
+void PWM_SetOffTime(uint32_t chn, uint16_t off_time);
+uint16_t PWM_GetOffTime(uint32_t chn);
 # 362 "chip/Include/MT7687.h" 2
 # 1 "chip/Include/MT7687_Flash.h" 1
 
@@ -3413,6 +3418,12 @@ Q(BytesIO)
 
 Q(BytesIO)
 
+Q(CLKSRC_2MHz)
+
+Q(CLKSRC_32KHz)
+
+Q(CLKSRC_XTAL)
+
 Q(DEBUG)
 
 Q(EINVAL)
@@ -3518,6 +3529,10 @@ Q(POLLHUP)
 Q(POLLIN)
 
 Q(POLLOUT)
+
+Q(PWM)
+
+Q(PWM)
 
 Q(Pin)
 
@@ -4159,9 +4174,15 @@ Q(getter)
 
 Q(getvalue)
 
+Q(global_start)
+
 Q(globals)
 
 Q(group)
+
+Q(gstart)
+
+Q(gstop)
 
 Q(handler)
 
@@ -4180,6 +4201,8 @@ Q(hex)
 Q(hexlify)
 
 Q(high)
+
+Q(id)
 
 Q(id)
 
@@ -4437,6 +4460,14 @@ Q(object)
 
 Q(oct)
 
+Q(off_time)
+
+Q(off_time)
+
+Q(on_time)
+
+Q(on_time)
+
 Q(open)
 
 Q(open)
@@ -4667,6 +4698,8 @@ Q(start)
 
 Q(start)
 
+Q(start)
+
 Q(start_new_thread)
 
 Q(startswith)
@@ -4696,6 +4729,8 @@ Q(stdin)
 Q(stdout)
 
 Q(step)
+
+Q(stop)
 
 Q(stop)
 

@@ -39,3 +39,25 @@ void PWM_GStop(void)
 {
 	PWM->GCR &= ~(1 << PWM_GCR_START_Pos);
 }
+
+void PWM_SetOnTime(uint32_t chn, uint16_t on_time)
+{
+    PWM->CH[chn].S0 &= ~PWM_S0_ON_TIME_Msk;
+    PWM->CH[chn].S0 |= (on_time << PWM_S0_ON_TIME_Pos);
+}
+
+uint16_t PWM_GetOnTime(uint32_t chn)
+{
+    return ((PWM->CH[chn].S0 & PWM_S0_ON_TIME_Msk) >> PWM_S0_ON_TIME_Pos);
+}
+
+void PWM_SetOffTime(uint32_t chn, uint16_t off_time)
+{
+    PWM->CH[chn].S0 &= ~PWM_S0_OFF_TIME_Msk;
+    PWM->CH[chn].S0 |= (off_time << PWM_S0_OFF_TIME_Pos);
+}
+
+uint16_t PWM_GetOffTime(uint32_t chn)
+{
+    return ((PWM->CH[chn].S0 & PWM_S0_OFF_TIME_Msk) >> PWM_S0_OFF_TIME_Pos);
+}

@@ -629,8 +629,8 @@ ports/mt7687/mods/pybi2c.c
 ports/mt7687/mods/pybi2c.h
 ports/mt7687/mods/pybpin.c
 ports/mt7687/mods/pybpin.h
-ports/mt7687/mods/pybrtc.c
-ports/mt7687/mods/pybrtc.h
+ports/mt7687/mods/pybpwm.c
+ports/mt7687/mods/pybpwm.h
 ports/mt7687/mods/pybspi.c
 ports/mt7687/mods/pybspi.h
 ports/mt7687/mods/pybtimer.c

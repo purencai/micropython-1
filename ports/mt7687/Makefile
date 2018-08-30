@@ -82,6 +82,7 @@ MODS_SRC_C = $(addprefix mods/,\
     pybflash.c \
     pybpin.c \
     pybtimer.c \
+    pybpwm.c \
 )
 #
 # 	modnetwork.c \

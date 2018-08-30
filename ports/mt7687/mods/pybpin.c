@@ -61,6 +61,18 @@ pin_obj_t *pin_find_by_name(mp_obj_t name) {
     mp_raise_ValueError("invalid argument(s) value");
 }
 
+pin_obj_t *pin_find_by_index(uint index) {
+    mp_map_t *named_pins = mp_obj_dict_get_map((mp_obj_t)&pins_locals_dict);
+
+    for (uint i = 0; i < named_pins->used; i++) {
+        if (((pin_obj_t *)named_pins->table[i].value)->index == index) {
+            return (pin_obj_t *)named_pins->table[i].value;
+        }
+    }
+
+    mp_raise_ValueError("invalid argument(s) value");
+}
+
 void pin_config(pin_obj_t *self, uint alt, uint dir, uint mode) {
     self->alt  = alt;
     self->dir  = dir;
@@ -98,16 +110,16 @@ STATIC void pin_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t
 
     if(self->alt == 8)
     {
-        mp_printf(print, "Pin('%q', dir=%s)", self->name, (self->dir == 0) ? "In" : "Out");
+        mp_printf(print, "Pin(%d, dir=%s)", self->index, (self->dir == 0) ? "In" : "Out");
     }
     else
     {
-        mp_printf(print, "Pin('%q', alf=%q)", self->name, self->alt);
+        mp_printf(print, "Pin(%d, alf=%q)", self->index, self->alt);
     }
 }
 
 STATIC const mp_arg_t pin_init_args[] = {
-    { MP_QSTR_id,       MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = mp_const_none} },
+    { MP_QSTR_id,       MP_ARG_REQUIRED | MP_ARG_INT, {.u_obj = 0} },
     { MP_QSTR_dir,                        MP_ARG_INT, {.u_int = 0} },
     { MP_QSTR_alt,      MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 8} },
     { MP_QSTR_mode,     MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
@@ -122,7 +134,7 @@ STATIC mp_obj_t pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
     mp_arg_val_t args[MP_ARRAY_SIZE(pin_init_args)];
     mp_arg_parse_all(n_args, all_args, &kw_args, MP_ARRAY_SIZE(pin_init_args), pin_init_args, args);
 
-    pin_obj_t *self = pin_find_by_name(args[0].u_obj);
+    pin_obj_t *self = pin_find_by_index(args[0].u_int);
 
     uint dir = args[1].u_int;
 

@@ -20,6 +20,12 @@ Q(BytesIO)
 
 Q(BytesIO)
 
+Q(CLKSRC_2MHz)
+
+Q(CLKSRC_32KHz)
+
+Q(CLKSRC_XTAL)
+
 Q(DEBUG)
 
 Q(EINVAL)
@@ -125,6 +131,10 @@ Q(POLLHUP)
 Q(POLLIN)
 
 Q(POLLOUT)
+
+Q(PWM)
+
+Q(PWM)
 
 Q(Pin)
 
@@ -766,9 +776,15 @@ Q(getter)
 
 Q(getvalue)
 
+Q(global_start)
+
 Q(globals)
 
 Q(group)
+
+Q(gstart)
+
+Q(gstop)
 
 Q(handler)
 
@@ -787,6 +803,8 @@ Q(hex)
 Q(hexlify)
 
 Q(high)
+
+Q(id)
 
 Q(id)
 
@@ -1044,6 +1062,14 @@ Q(object)
 
 Q(oct)
 
+Q(off_time)
+
+Q(off_time)
+
+Q(on_time)
+
+Q(on_time)
+
 Q(open)
 
 Q(open)
@@ -1274,6 +1300,8 @@ Q(start)
 
 Q(start)
 
+Q(start)
+
 Q(start_new_thread)
 
 Q(startswith)
@@ -1303,6 +1331,8 @@ Q(stdin)
 Q(stdout)
 
 Q(step)
+
+Q(stop)
 
 Q(stop)
 

@@ -10,6 +10,11 @@ void PWM_Stop(uint32_t chn);
 void PWM_GStart(void);
 void PWM_GStop(void);
 
+void PWM_SetOnTime(uint32_t chn, uint16_t on_time);
+uint16_t PWM_GetOnTime(uint32_t chn);
+void PWM_SetOffTime(uint32_t chn, uint16_t off_time);
+uint16_t PWM_GetOffTime(uint32_t chn);
+
 
 #define PWM_CLKSRC_32KHz	0
 #define PWM_CLKSRC_2MHz		1
