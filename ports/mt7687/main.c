@@ -86,16 +86,15 @@ StackType_t mpTaskStack[MICROPY_TASK_STACK_LEN];
 
 
 int main (void) {
-    PORT_Init(GPIO35, GPIO35_GPIO);
-    GPIO_Init(GPIO35, GPIO_DIR_OUT);
-    PORT_Init(GPIO38, GPIO38_GPIO);
-    GPIO_Init(GPIO38, GPIO_DIR_OUT);
-    GPIO_ClrBit(GPIO38);
-
-    GPIO_SetBit(GPIO35);
-    for(uint i = 0; i < SystemCoreClock; i++) __NOP();
-    GPIO_ClrBit(GPIO35);
-    for(uint i = 0; i < 19200000; i++) __NOP();
+//    PORT_Init(GPIO35, GPIO35_GPIO);
+//    GPIO_Init(GPIO35, GPIO_DIR_OUT);
+//    PORT_Init(GPIO38, GPIO38_GPIO);
+//    GPIO_Init(GPIO38, GPIO_DIR_OUT);
+//    GPIO_ClrBit(GPIO38);
+//    GPIO_SetBit(GPIO35);
+//    for(uint i = 0; i < SystemCoreClock; i++) __NOP();
+//    GPIO_ClrBit(GPIO35);
+//    for(uint i = 0; i < 19200000; i++) __NOP();
 
     xTaskCreateStatic(TASK_MicroPython, "MicroPy",
         MICROPY_TASK_STACK_LEN, NULL, MICROPY_TASK_PRIORITY, mpTaskStack, &mpTaskTCB);
