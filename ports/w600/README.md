@@ -1,14 +1,14 @@
 MicroPython port to W600 WiFi SoC
 ===================================
 
-# Pin
+## Pin
 ``` python
 led = machine.Pin('PB18', machine.Pin.OUT)
 led.value(1 - led.value())
 ```
 
 
-# UART
+## UART
 ``` python
 ser = machine.UART(1, 115200)
 ser.write('Hi, MicroPy!\n')
@@ -22,14 +22,14 @@ UART1: TX -> PB12    RX -> PB11
 UART2: TX -> PA1    RX -> PA0
 
 
-# Timer
+## Timer
 ``` python
 tmr = machine.Timer(1000000, callback=lambda tmr, led=led: led.value(1 - led.value()))
 tmr.start()
 ```
 
 
-# PWM
+## PWM
 ``` python
 pwm = machine.PWM(3, 40000, 100, 10)
 pwm.start()
@@ -39,7 +39,7 @@ pwm.start()
 PWM0 -> PB18  PB1 -> PB17  PWM2 -> PB16  PB3 -> PB15  PWM4 -> PB14
 
 
-# SPI
+## SPI
 ``` python
 spi = machine.SPI(0, 1000000)
 arr = array.array('B', range(0x70, 0x80))
@@ -55,7 +55,7 @@ spi.readinto(buf, 16)
 CK -> PB16   CS -> PB15   DI -> PB17   DO -> PB18
 
 
-# I2C
+## I2C
 ``` python
 i2c = machine.I2C(0, 100000)
 
@@ -74,7 +74,7 @@ i2c.readfrom_into(0x12, buf)
 SCL -> PB13 SDA -> PB14
 
 
-# RTC
+## RTC
 ``` python
 rtc = machine.RTC()
 rtc.set((2019, 1, 21, 22, 52, 00, 00, 00))
@@ -82,7 +82,7 @@ rtc.now()
 ```
 
 
-# WLAN
+## WLAN
 ```
 sta = network.WLAN(network.WLAN.STA)
     
