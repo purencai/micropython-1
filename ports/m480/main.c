@@ -37,7 +37,6 @@
 #include "py/runtime.h"
 #include "py/repl.h"
 #include "py/gc.h"
-#include "gchelper.h"
 #include "lib/utils/pyexec.h"
 #include "lib/mp-readline/readline.h"
 #include "gccollect.h"

@@ -1,5 +1,5 @@
-# Select the board to build for: if not given on the command line, then default to SWM320Lite
-BOARD ?= SWM320Lite
+# Select the board to build for: if not given on the command line, then default to M482Lite
+BOARD ?= M482Lite
 ifeq ($(wildcard boards/$(BOARD)/.),)
 $(error Invalid BOARD specified)
 endif
@@ -11,64 +11,46 @@ BUILD ?= build-$(BOARD)
 include ../../py/mkenv.mk
 
 
-CROSS_COMPILE ?= arm-none-eabi-
-
-CFLAGS_CORTEX_M4 = -mthumb -march=armv7e-m -mabi=aapcs -mcpu=cortex-m4 -msoft-float -mfloat-abi=soft -fsingle-precision-constant -Wdouble-promotion
-CFLAGS = -Wall -Wpointer-arith -Werror -std=gnu99 -nostdlib $(CFLAGS_CORTEX_M4) -O0
-CFLAGS += -g -ffunction-sections -fdata-sections -fno-common -fsigned-char -mno-unaligned-access
-CFLAGS += $(CFLAGS_MOD)
-
-LDFLAGS = -Wl,-nostdlib -Wl,--gc-sections -Wl,-Map=$@.map
-
-
 # qstr definitions (must come before including py.mk)
 QSTR_DEFS = qstrdefsport.h $(BUILD)/pins_qstr.h
 
 include $(TOP)/py/py.mk
 
 
+CROSS_COMPILE ?= arm-none-eabi-
+
+
+CPPDEFINES = -Dgcc
+
+CFLAGS  = -mthumb -march=armv7e-m -mcpu=cortex-m4 -mabi=aapcs -msoft-float -mfloat-abi=soft -fsingle-precision-constant -Wdouble-promotion
+CFLAGS += -Wall -Wpointer-arith -Werror -std=gnu99 -nostdlib -O0
+CFLAGS += -g -ffunction-sections -fdata-sections -fno-common -fsigned-char -mno-unaligned-access
+CFLAGS += $(CPPDEFINES) $(CFLAGS_MOD)
+
+LDFLAGS = -Wl,-nostdlib -Wl,--gc-sections -Wl,-Map=$@.map -T m480.ld
+
+
 INC =  -I.
 INC += -I$(TOP)
 INC += -I$(TOP)/lib/cmsis/inc
 INC += -Ichip
+INC += -Ichip/regs
 INC += -Imods
 INC += -Imisc
+INC += -Irtos
+INC += -Irtos/include
+INC += -Irtos/ports/ARM_CM4
 INC += -Iboards/$(BOARD)
 INC += -I$(BUILD)
 INC += -I$(BUILD)/genhdr
 
-CPPDEFINES = -Dgcc
+CFLAGS += $(INC)
 
 
 MAIN_SRC_C = \
 	main.c \
 	mphalport.c \
-	mpthreadport.c \
-
-CHIP_SRC_C = $(addprefix chip/,\
-	SWM320_adc.c \
-	SWM320_can.c \
-	SWM320_crc.c \
-	SWM320_dma.c \
-	SWM320_exti.c \
-	SWM320_flash.c \
-	SWM320_gpio.c \
-	SWM320_i2c.c \
-	SWM320_lcd.c \
-	SWM320_port.c \
-	SWM320_pwm.c \
-	SWM320_rtc.c \
-	SWM320_sdio.c \
-	SWM320_spi.c \
-	SWM320_timr.c \
-	SWM320_uart.c \
-	SWM320_wdt.c \
-	system_SWM320.c \
-)
-
-CHIP_SRC_S = $(addprefix chip/startup/gcc/,\
-	startup_SWM320.s \
-)
+	fatfs_port.c \
 
 MODS_SRC_C = $(addprefix mods/,\
 	moduos.c \
@@ -76,26 +58,74 @@ MODS_SRC_C = $(addprefix mods/,\
 	modmachine.c \
 	pybpin.c \
 	pybuart.c \
-	pybflash.c \
-	pybadc.c \
-	pybspi.c \
 	pybtimer.c \
+	pybflash.c \
+	pybspi.c \
 	pybi2c.c \
+	pybadc.c \
 	pybpwm.c \
 )
 
 MISC_SRC_C = $(addprefix misc/,\
-	fifo.c \
 	bufhelper.c \
 	gccollect.c \
-	random.c \
 )
 
-MISC_SRC_S = $(addprefix misc/,\
-	gchelper.s \
+CHIP_SRC_C = $(addprefix chip/,\
+	system_M480.c \
+	acmp.c \
+	bpwm.c \
+	can.c \
+	clk.c \
+	crc.c \
+	crypto.c \
+	dac.c \
+	eadc.c \
+	ebi.c \
+	ecap.c \
+	emac.c \
+	epwm.c \
+	fmc.c \
+	gpio.c \
+	hsusbd.c \
+	i2c.c \
+	i2s.c \
+	pdma.c \
+	qei.c \
+	qspi.c \
+	retarget.c \
+	rtc.c \
+	sc.c \
+	scuart.c \
+	sdh.c \
+	spi.c \
+	spim.c \
+	sys.c \
+	timer.c \
+	timer_pwm.c \
+	uart.c \
+	usbd.c \
+	usci_i2c.c \
+	usci_spi.c \
+	usci_uart.c \
+	wdt.c \
+	wwdt.c \
 )
 
-LIB_SRC_C = $(addprefix lib/,\
+CHIP_SRC_S = $(addprefix chip/,\
+	boot/GCC/startup_M480.S \
+)
+
+RTOS_SRC_C = $(addprefix rtos/,\
+	list.c \
+	queue.c \
+	tasks.c \
+	timers.c \
+	ports/ARM_CM4/port.c \
+	ports/MemMang/heap_4.c \
+)
+
+LIBS_SRC_C = $(addprefix lib/,\
 	oofatfs/ff.c \
 	oofatfs/option/unicode.c \
 	libc/string0.c \
@@ -107,32 +137,27 @@ LIB_SRC_C = $(addprefix lib/,\
 )
 
 OBJ = $(PY_O) 
-OBJ += $(addprefix $(BUILD)/, $(MAIN_SRC_C:.c=.o) $(CHIP_SRC_C:.c=.o) $(CHIP_SRC_S:.s=.o))
-OBJ += $(addprefix $(BUILD)/, $(MODS_SRC_C:.c=.o) $(MISC_SRC_C:.c=.o) $(MISC_SRC_S:.s=.o) $(LIB_SRC_C:.c=.o))
+OBJ += $(addprefix $(BUILD)/, $(MAIN_SRC_C:.c=.o) $(MODS_SRC_C:.c=.o) $(MISC_SRC_C:.c=.o) )
+OBJ += $(addprefix $(BUILD)/, $(CHIP_SRC_C:.c=.o) $(CHIP_SRC_S:.s=.o) $(RTOS_SRC_C:.c=.o) $(LIBS_SRC_C:.c=.o))
 OBJ += $(BUILD)/pins.o
+
 
 # List of sources for qstr extraction
 SRC_QSTR += $(MODS_SRC_C) $(MISC_SRC_C)
 # Append any auto-generated sources that are needed by sources listed in SRC_QSTR
 SRC_QSTR_AUTO_DEPS +=
 
-# Add the linker script
-LINKER_SCRIPT = swm320.ld
-LDFLAGS += -T $(LINKER_SCRIPT)
-
-# Add the firmware specific CFLAGS
-CFLAGS += $(CPPDEFINES) $(INC)
 
 
+all: $(BUILD)/micropython.bin
 
-all: $(BUILD)/firmware.bin
-
-$(BUILD)/firmware.elf: $(OBJ) $(LINKER_SCRIPT)
+$(BUILD)/micropython.elf: $(OBJ)
 	$(ECHO) "LINK $@"
 	$(Q)$(CC) -o $@ $(LDFLAGS) $(OBJ) $(LIBS)
+	$(CROSS_COMPILE)objdump -d $@ > $(BUILD)/micropython.elf.dis
 	$(Q)$(SIZE) $@
 
-$(BUILD)/firmware.bin: $(BUILD)/firmware.elf
+$(BUILD)/micropython.bin: $(BUILD)/micropython.elf
 	$(ECHO) "Create $@"
 	$(Q)$(OBJCOPY) -O binary $< $@
 
@@ -143,9 +168,9 @@ $(BUILD)/firmware.bin: $(BUILD)/firmware.elf
 $(OBJ): | $(HEADER_BUILD)/pins.h
 
 # Call make-pins.py to generate both pins.c and pins.h
-$(BUILD)/pins.c $(HEADER_BUILD)/pins.h $(BUILD)/pins_qstr.h: chip/SWM320_port.h boards/SWM320_prefix.c | $(HEADER_BUILD)
+$(BUILD)/pins.c $(HEADER_BUILD)/pins.h $(BUILD)/pins_qstr.h: chip/sys.h boards/M480_prefix.c | $(HEADER_BUILD)
 	$(ECHO) "Create $@"
-	$(Q)$(PYTHON) boards/make-pins.py --af chip/SWM320_port.h --prefix boards/SWM320_prefix.c --hdr $(HEADER_BUILD)/pins.h --qstr $(BUILD)/pins_qstr.h > $(BUILD)/pins.c
+	$(Q)$(PYTHON) boards/make-pins.py --af chip/sys.h --prefix boards/M480_prefix.c --hdr $(HEADER_BUILD)/pins.h --qstr $(BUILD)/pins_qstr.h > $(BUILD)/pins.c
 
 $(BUILD)/pins.o: $(BUILD)/pins.c
 	$(call compile_c)
