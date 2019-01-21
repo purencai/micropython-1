@@ -1,6 +1,6 @@
 # Select the board to build for: if not given on the command line,
-# then default to PYBV10.
-BOARD ?= PYBV10
+# then default to STM32F405Lite.
+BOARD ?= STM32F405Lite
 ifeq ($(wildcard boards/$(BOARD)/.),)
 $(error Invalid BOARD specified)
 endif
@@ -93,7 +93,7 @@ LIBS = $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 # Remove uncalled code from the final image.
 CFLAGS += -fdata-sections -ffunction-sections
 LDFLAGS += --gc-sections
-
+DEBUG = 1
 # Debugging/Optimization
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -DPENDSV_DEBUG
@@ -520,6 +520,7 @@ $(BUILD)/firmware.hex: $(BUILD)/firmware.elf
 $(BUILD)/firmware.elf: $(OBJ)
 	$(ECHO) "LINK $@"
 	$(Q)$(LD) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CROSS_COMPILE)objdump -d $@ > $(BUILD)/micropython.elf.dis
 	$(Q)$(SIZE) $@
 
 PLLVALUES = boards/pllvalues.py

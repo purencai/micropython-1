@@ -71,7 +71,7 @@
 #define MICROPY_HW_CAN2_RX   		(pin_B12) // Y5
 
 // USRSW has no pullup or pulldown, and pressing the switch makes the input go low
-#define MICROPY_HW_USRSW_PIN        (pin_A15)
+#define MICROPY_HW_USRSW_PIN        (pin_C7)
 #define MICROPY_HW_USRSW_PULL       (GPIO_PULLUP)
 #define MICROPY_HW_USRSW_EXTI_MODE  (GPIO_MODE_IT_FALLING)
 #define MICROPY_HW_USRSW_PRESSED    (0)

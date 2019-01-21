@@ -1,5 +1,7 @@
 include ../../py/mkenv.mk
 
+ESPIDF = /home/wmx/win/esp-idf
+
 # qstr definitions (must come before including py.mk)
 QSTR_DEFS = qstrdefsport.h
 
