@@ -27,9 +27,12 @@
 #ifndef MICROPY_INCLUDED_SWM320_MODS_PYBUART_H
 #define MICROPY_INCLUDED_SWM320_MODS_PYBUART_H
 
+
 extern const mp_obj_type_t pyb_uart_type;
 
+
 typedef struct _pyb_uart_obj_t pyb_uart_obj_t;
+
 
 void uart_init0(void);
 int uart_rx_any(pyb_uart_obj_t *self);
@@ -37,5 +40,6 @@ int uart_rx_char(pyb_uart_obj_t *self);
 bool uart_rx_wait(pyb_uart_obj_t *self);
 bool uart_tx_char(pyb_uart_obj_t *self, int c);
 bool uart_tx_strn(pyb_uart_obj_t *self, const char *str, uint len);
+
 
 #endif //MICROPY_INCLUDED_SWM320_MODS_PYBUART_H

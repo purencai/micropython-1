@@ -1,12 +1,14 @@
 /* Entry Point */
 ENTRY(Reset_Handler)
 
+
 /* Specify the memory areas */
 MEMORY
 {
-	ROM   (arx) : ORIGIN = 0x00000000,    LENGTH = 0x00080000 /* 512k */
-    RAM   (arw) : ORIGIN = 0x20000000,    LENGTH = 0x00020000 /* 128k */
+	ROM(arx) : ORIGIN = 0x00000000, LENGTH = 0x00080000 /* 512k */
+	RAM(arw) : ORIGIN = 0x20000000, LENGTH = 0x00020000 /* 120k */
 }
+
 
 /* Define output sections */
 SECTIONS
@@ -14,7 +16,7 @@ SECTIONS
     . = ORIGIN(ROM);
     .text :
     {
-        KEEP(*(.isr_vector))
+		KEEP(*(.vectors))
 
         *(.text)
         *(.text*)

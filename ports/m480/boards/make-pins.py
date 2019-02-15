@@ -1,59 +1,56 @@
 #!/usr/bin/env python
-"""Generates the pins file for the SWM320"""
+"""Generates the pins file for the M480"""
 from __future__ import print_function
 
 import re
 import sys
 import argparse
-
+from collections import OrderedDict
 
 class Pin:
     """Holds the information associated with a pin."""
-    def __init__(self, name, port, pbit):
+    def __init__(self, name, port, pbit, IRQn):
         self.name = name
         self.port = port
         self.pbit = pbit
+        self.afs  = []
+        self.IRQn = IRQn
 
     def print(self):
-        print('pin_obj_t pin_{:4s} = PIN({:4s}, {:5s}, {:2s});\n'.format(self.name, self.name, self.port, self.pbit))
+    	print('const pin_af_t pin_%s_af[] = {' %self.name)
+    	for af in self.afs:
+    		print('    AF(%-20s, %-36s, %s, %s),' %af)
+    	print('};\n')
+        print('pin_obj_t pin_{:4s} = PIN({:4s}, {:2s}, {:2s}, &{:4s}, pin_{:s}_af, {:s});\n'.format(self.name, self.name, self.port, self.pbit, self.name, self.name, self.IRQn))
 
     def print_header(self, hdr_file):
+        hdr_file.write('extern const pin_af_t pin_{:s}_af[];\n'.format(self.name))
         hdr_file.write('extern pin_obj_t pin_{:4s};\n'.format(self.name))
 
 
 class Pins:
     def __init__(self):
-        self.pins = []   # list of Pin
-
-    def find_pin(self, port, pbit):
-        for pin in self.pins:
-            if pin.port == port and pin.pbit == pbit:
-                return pin
-
-    def find_pin_by_name(self, name):
-        for pin in self.pins:
-            if pin.name == name:
-                return pin
+        self.pins = OrderedDict()   # list of Pin
 
     def parse_af_file(self, filename):
         with open(filename, 'r') as f:
             for line in f.readlines():
-                match = re.match(r'#define PORT([ABCD])_PIN(\d+)_GPIO', line)
+                match = re.match(r'#define (SYS_GP([A-H])_MFP([LH])_P\2(\d{1,2})MFP_(\w+))\s+\(0x[0-9A-F]{2}UL<<(\w+)', line)
                 if match:
-                    name = 'P' + match.group(1) + match.group(2)
-                    for pin in self.pins:
-                        if pin.name == name:
-                            break
-                    else:
-                        pin = Pin(name, 'GPIO'+match.group(1), 'PIN'+match.group(2))
-                        self.pins.append(pin)
+                    name = 'P' + match.group(2) + match.group(4)
+
+                    if name not in self.pins:
+                        self.pins[name] = Pin(name, 'P'+match.group(2), 'BIT'+match.group(4), 'GP%s_IRQn' %match.group(2))
+
+                    self.pins[name].afs.append(('%s_%s' %(name, match.group(5)), match.group(1), '(0xFu << %-24s)' %match.group(6), 
+                                            '&SYS->GP%s_MFP%s' %(match.group(2), match.group(3))))
 
     def print(self):
-        for pin in self.pins:
+        for name, pin in self.pins.items():
             pin.print()
         print('')
         print('STATIC const mp_rom_map_elem_t pins_locals_dict_table[] = {')
-        for pin in self.pins:
+        for name, pin in self.pins.items():
             print('    {{ MP_ROM_QSTR(MP_QSTR_{:5s}),  MP_ROM_PTR(&pin_{:5s}) }},'.format(pin.name, pin.name))
         print('};')
         print('')
@@ -62,13 +59,22 @@ class Pins:
 
     def print_header(self, hdr_filename):
         with open(hdr_filename, 'wt') as hdr_file:
-            for pin in self.pins:
+            for name, pin in self.pins.items():
                 pin.print_header(hdr_file)
 
     def print_qstr(self, qstr_filename):
         with open(qstr_filename, 'wt') as qstr_file:
-            for pin in self.pins:
+            for name, pin in self.pins.items():
                 print('Q({})'.format(pin.name), file=qstr_file)
+
+                for af in pin.afs:
+                	print('Q({})'.format(af[0]), file=qstr_file)
+
+    def print_af_const(self, af_const_filename):
+        with open(af_const_filename, 'wt') as af_const_file:
+            for name, pin in self.pins.items():
+                for af in pin.afs:
+                    print('    { MP_ROM_QSTR(MP_QSTR_%-20s),  MP_ROM_INT(%-36s)},' %(af[0], af[1]), file=af_const_file)
 
 
 def main():
@@ -81,25 +87,31 @@ def main():
         "-a", "--af",
         dest="af_filename",
         help="Specifies the alternate function file for the chip",
-        default="../chip/SWM3200_port.h"
+        default="../chip/sys.h"
     )
     parser.add_argument(
         "-p", "--prefix",
         dest="prefix_filename",
         help="Specifies beginning portion of generated pins file",
-        default="SWM320_prefix.c"
+        default="M480_prefix.c"
     )
     parser.add_argument(
         "-q", "--qstr",
         dest="qstr_filename",
         help="Specifies name of generated qstr header file",
-        default="../build-SWM320Lite/pins_qstr.h"
+        default="../build-M482Lite/pins_qstr.h"
     )
     parser.add_argument(
         "-r", "--hdr",
         dest="hdr_filename",
         help="Specifies name of generated pin header file",
-        default="../build-SWM320Lite/pins.h"
+        default="../build-M482Lite/pins.h"
+    )
+    parser.add_argument(
+        "--af-const",
+        dest="af_const_filename",
+        help="Specifies header file for alternate function constants.",
+        default="../build-M482Lite/pins_af_const.h"
     )
     args = parser.parse_args(sys.argv[1:])
 
@@ -121,6 +133,7 @@ def main():
     pins.print()
     pins.print_qstr(args.qstr_filename)
     pins.print_header(args.hdr_filename)
+    pins.print_af_const(args.af_const_filename)
 
 
 if __name__ == "__main__":

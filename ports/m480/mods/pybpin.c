@@ -29,22 +29,24 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "py/mperrno.h"
 #include "py/runtime.h"
 #include "py/gc.h"
 
+#include "chip/M480.h"
+
 #include "mods/pybpin.h"
+
+
+#define GPIO_INT_DISABLE    0
 
 
 /// \moduleref pyb
 /// \class Pin - control I/O pins
 ///
 
-#define PIN_DIR_IN          0
-#define PIN_DIR_OUT         1
-#define PIN_MODE_PUSH_PULL  1
-#define PIN_MODE_OPEN_DRAIN 2
-#define PIN_MODE_PULL_UP    4
-#define PIN_MODE_PULL_DOWN  8
+const pin_af_t *pin_af_find_by_name(pin_obj_t *self, qstr name);
+const pin_af_t *pin_af_find_by_value(pin_obj_t *self, uint value);
 
 /******************************************************************************
  DEFINE PUBLIC FUNCTIONS
@@ -53,70 +55,114 @@ pin_obj_t *pin_find_by_name(mp_obj_t name) {
     mp_map_t *named_pins = mp_obj_dict_get_map((mp_obj_t)&pins_locals_dict);
 
     mp_map_elem_t *named_elem = mp_map_lookup(named_pins, name, MP_MAP_LOOKUP);
-    if (named_elem != NULL && named_elem->value != NULL) {
+    if(named_elem != NULL && named_elem->value != NULL) {
         return (pin_obj_t *)named_elem->value;
     }
 
-    mp_raise_ValueError("invalid argument(s) value");
+    mp_raise_OSError(MP_ENODEV);
 }
 
-pin_obj_t *pin_find_by_port_bit(GPIO_TypeDef *port, uint pbit) {
+pin_obj_t *pin_find_by_port_bit(GPIO_T *port, uint pbit) {
     mp_map_t *named_pins = mp_obj_dict_get_map((mp_obj_t)&pins_locals_dict);
 
-    for (uint i = 0; i < named_pins->used; i++) {
-        if ((((pin_obj_t *)named_pins->table[i].value)->port == port) &&
+    for(uint i = 0; i < named_pins->used; i++) {
+        if((((pin_obj_t *)named_pins->table[i].value)->port == port) &&
             (((pin_obj_t *)named_pins->table[i].value)->pbit == pbit)) {
             return (pin_obj_t *)named_pins->table[i].value;
         }
     }
 
-    mp_raise_ValueError("invalid argument(s) value");
+    mp_raise_OSError(MP_ENODEV);
 }
 
-void pin_config(pin_obj_t *self, uint alt, uint dir, uint mode) {
-    self->alt  = alt;
-    self->dir  = dir;
-    self->mode = mode;
-
-    uint pull_up    = (mode & PIN_MODE_PULL_UP)    ? 1 : 0;
-    uint pull_down  = (mode & PIN_MODE_PULL_DOWN)  ? 1 : 0;
-//  uint open_drain = (mode & PIN_MODE_OPEN_DRAIN) ? 1 : 0;
-
-    if(self->alt == 0)
+void pin_config_by_func(mp_obj_t obj, const char *format, uint id)
+{
+    if(MP_OBJ_IS_STR(obj))
     {
-        if((dir != PIN_DIR_IN) && (dir != PIN_DIR_OUT))
-        {
-            goto invalid_args;
-        }
+        const char *pin_name = mp_obj_str_get_str(obj);
 
-        GPIO_Init(self->port, self->pbit, self->dir, pull_up, pull_down);
+        char af_name[64] = {0};
+        if(strchr(format+1, '%'))
+            snprintf(af_name, 64, format, pin_name, id);
+        else
+            snprintf(af_name, 64, format, pin_name);
+
+        pin_config_by_name(pin_name, af_name);
     }
     else
     {
-        switch ((uint32_t)self->port) {
-        case ((uint32_t)GPIOA):
-            PORT_Init(PORTA, self->pbit, self->alt, 1);
-            break;
-        case ((uint32_t)GPIOB):
-            PORT_Init(PORTB, self->pbit, self->alt, 1);
-            break;
-        case ((uint32_t)GPIOC):
-            PORT_Init(PORTC, self->pbit, self->alt, 1);
-            break;
-        default:
-            break;
+        mp_raise_OSError(MP_ENODEV);
+    }
+}
+
+void pin_config_by_name(const char *pin_name, const char *af_name)
+{
+    pin_obj_t *pin = pin_find_by_name(mp_obj_new_str(pin_name, strlen(pin_name)));
+
+    const pin_af_t *af = pin_af_find_by_name(pin, qstr_from_str(af_name));
+
+    pin_config_by_value(pin, af->value, GPIO_MODE_INPUT, GPIO_PUSEL_DISABLE);
+}
+
+void pin_config_by_value(pin_obj_t *self, uint af_value, uint dir, uint pull) {
+    const pin_af_t *af = pin_af_find_by_value(self, af_value);
+
+    *af->reg &= ~af->mask;
+    *af->reg |= af->value;
+
+    self->af  = af->name;
+
+    if(af_value == 0)
+    {
+        self->dir  = dir;
+        self->pull = pull;
+
+        GPIO_SetMode(self->port, self->pbit, self->dir);
+
+        GPIO_SetPullCtl(self->port, self->pbit, self->pull);
+
+        GPIO_SetSlewCtl(self->port, self->pbit, GPIO_SLEWCTL_FAST);
+    }
+}
+
+void pin_config_pull(mp_obj_t name, uint pull)
+{
+    pin_obj_t *pin = pin_find_by_name(name);
+
+    GPIO_SetPullCtl(pin->port, pin->pbit, pull);
+}
+
+
+/******************************************************************************
+ DEFINE PRIVATE FUNCTIONS
+ ******************************************************************************/
+const pin_af_t *pin_af_find_by_name(pin_obj_t *self, qstr name)
+{
+    for(uint i = 0; i < self->afn; i++)
+    {
+        if(self->afs[i].name == name)
+        {
+            return &self->afs[i];
         }
     }
 
-    return;
-
-invalid_args:
-    mp_raise_ValueError("invalid argument(s) value");
+    mp_raise_OSError(MP_ENODEV);
 }
 
-/******************************************************************************
-DEFINE PRIVATE FUNCTIONS
- ******************************************************************************/
+//注意：一个值可能对应多个名字，因此查到的af未必正确，但程序执行可保证正确
+const pin_af_t *pin_af_find_by_value(pin_obj_t *self, uint value)
+{
+    for(uint i = 0; i < self->afn; i++)
+    {
+        if(self->afs[i].value == value)
+        {
+            return &self->afs[i];
+        }
+    }
+
+    mp_raise_OSError(MP_ENODEV);
+}
+
 
 /******************************************************************************/
 // MicroPython bindings
@@ -124,24 +170,26 @@ DEFINE PRIVATE FUNCTIONS
 STATIC void pin_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     pin_obj_t *self = self_in;
 
-    if(self->alt == 0)
+    if(self->af == 0)
     {
-        mp_printf(print, "Pin('%q', dir=%s)", self->name, (self->dir == 0) ? "In" : "Out");
+        mp_printf(print, "Pin('%q', dir=%s, pull=%s)", self->name, (self->dir == GPIO_MODE_INPUT) ? "In" : (self->dir == GPIO_MODE_OUTPUT ? "Out" : "Open-drain"),
+                                                                   (self->pull == GPIO_PUSEL_PULL_UP) ? "Up" : (self->pull == GPIO_PUSEL_PULL_DOWN ? "Down" : "None"));
     }
     else
     {
-        mp_printf(print, "Pin('%q', alf=%q)", self->name, self->alt);
+        mp_printf(print, "Pin('%q', af=%q)", self->name, self->af);
     }
 }
+
 
 STATIC const mp_arg_t pin_init_args[] = {
     { MP_QSTR_id,       MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = mp_const_none} },
     { MP_QSTR_dir,                        MP_ARG_INT, {.u_int = 0} },
-    { MP_QSTR_alt,      MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
-    { MP_QSTR_mode,     MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
-    { MP_QSTR_irq,      MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = EXTI_FALL_EDGE} },
+    { MP_QSTR_af,       MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
+    { MP_QSTR_pull,     MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = GPIO_PUSEL_DISABLE} },
+    { MP_QSTR_irq,      MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = GPIO_INT_DISABLE} },
     { MP_QSTR_callback, MP_ARG_KW_ONLY  | MP_ARG_OBJ, {.u_obj = mp_const_none} },
-    { MP_QSTR_priority, MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 7} }
+    { MP_QSTR_priority, MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} }
 };
 STATIC mp_obj_t pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     // parse args
@@ -152,40 +200,67 @@ STATIC mp_obj_t pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
 
     pin_obj_t *self = pin_find_by_name(args[0].u_obj);
 
+    uint af = args[2].u_int;
+
     uint dir = args[1].u_int;
-
-    uint alt = args[2].u_int;
-
-    uint mode = args[3].u_int;
-
-    pin_config(self, alt, dir, mode);
-
-    uint exti_mode = args[4].u_int;
-    self->callback = args[5].u_obj;
-    if(self->callback != mp_const_none)
+    if((dir != GPIO_MODE_INPUT) && (dir != GPIO_MODE_OUTPUT) && (dir != GPIO_MODE_OPEN_DRAIN))
     {
-        EXTI_Init(self->port, self->pbit, exti_mode);
+        goto invalid_args;
+    }
 
-        NVIC_SetPriority(GPIOA_IRQn, args[6].u_int);
-        NVIC_EnableIRQ(GPIOA_IRQn);
+    uint pull = args[3].u_int;
+    if((pull != GPIO_PUSEL_PULL_UP) && (pull != GPIO_PUSEL_PULL_DOWN) && (pull != GPIO_PUSEL_DISABLE))
+    {
+        goto invalid_args;
+    }
 
-        EXTI_Open(self->port, self->pbit);
+    pin_config_by_value(self, af, dir, pull);
+
+    self->irq_trigger = args[4].u_int;
+    if((self->irq_trigger != GPIO_INT_RISING) && (self->irq_trigger != GPIO_INT_FALLING) && (self->irq_trigger != GPIO_INT_BOTH_EDGE) &&
+       (self->irq_trigger != GPIO_INT_LOW) && (self->irq_trigger != GPIO_INT_HIGH) && (self->irq_trigger != GPIO_INT_DISABLE))
+    {
+        goto invalid_args;
+    }
+
+    self->irq_priority = args[6].u_int;
+    if(self->irq_priority > 15)
+    {
+        goto invalid_args;
+    }
+
+    self->irq_callback = args[5].u_obj;
+    if(self->irq_callback != mp_const_none)
+    {
+        if(self->irq_trigger == GPIO_INT_DISABLE)
+        {
+            goto invalid_args;
+        }
+
+        GPIO_EnableInt(self->port, self->pbit, self->irq_trigger);
+
+        NVIC_SetPriority(self->IRQn, self->irq_priority);
+        NVIC_EnableIRQ(self->IRQn);
     }
 
     return self;
+
+invalid_args:
+    mp_raise_ValueError("invalid argument(s) value");
 }
+
 
 STATIC mp_obj_t pin_value(size_t n_args, const mp_obj_t *args) {
     pin_obj_t *self = args[0];
     if (n_args == 1) {
         // get
-        return MP_OBJ_NEW_SMALL_INT(GPIO_GetBit(self->port, self->pbit));
+        return MP_OBJ_NEW_SMALL_INT(*self->preg);
     } else {
         // set
         if (mp_obj_is_true(args[1])) {
-            GPIO_SetBit(self->port, self->pbit);
+            *self->preg = 1;
         } else {
-            GPIO_ClrBit(self->port, self->pbit);
+            *self->preg = 0;
         }
 
         return mp_const_none;
@@ -193,83 +268,81 @@ STATIC mp_obj_t pin_value(size_t n_args, const mp_obj_t *args) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(pin_value_obj, 1, 2, pin_value);
 
-STATIC mp_obj_t pin_high(mp_obj_t self_in) {
-    pin_obj_t *self = self_in;
-
-    GPIO_SetBit(self->port, self->pbit);
-
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_high_obj, pin_high);
 
 STATIC mp_obj_t pin_low(mp_obj_t self_in) {
     pin_obj_t *self = self_in;
 
-    GPIO_ClrBit(self->port, self->pbit);
+    *self->preg = 0;
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_low_obj, pin_low);
 
+
+STATIC mp_obj_t pin_high(mp_obj_t self_in) {
+    pin_obj_t *self = self_in;
+
+    *self->preg = 1;
+
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_high_obj, pin_high);
+
+
 STATIC mp_obj_t pin_toggle(mp_obj_t self_in) {
     pin_obj_t *self = self_in;
 
-    GPIO_InvBit(self->port, self->pbit);
+    *self->preg = 1 - *self->preg;
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_toggle_obj, pin_toggle);
 
+
 STATIC mp_obj_t pin_irq_enable(mp_obj_t self_in) {
     pin_obj_t *self = self_in;
 
-    EXTI_Open(self->port, self->pbit);
+    GPIO_EnableInt(self->port, self->pbit, self->irq_trigger);
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_irq_enable_obj, pin_irq_enable);
 
+
 STATIC mp_obj_t pin_irq_disable(mp_obj_t self_in) {
     pin_obj_t *self = self_in;
 
-    EXTI_Close(self->port, self->pbit);
+    GPIO_DisableInt(self->port, self->pbit);
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(pin_irq_disable_obj, pin_irq_disable);
 
 
-STATIC void GPIOX_Handler(GPIO_TypeDef *GPIOx, uint n) {
+STATIC void GPX_Handler(GPIO_T *GPx, uint n) {
     for(uint i = 0; i < n; i++)
     {
-        if(EXTI_State(GPIOx, i))
+        if(GPIO_GET_INT_FLAG(GPx, i))
         {
-            EXTI_Clear(GPIOx, i);
+            GPIO_CLR_INT_FLAG(GPx, i);
 
-            pin_obj_t *self = pin_find_by_port_bit(GPIOx, i);
+            pin_obj_t *self = pin_find_by_port_bit(GPx, i);
 
             /* 执行中断回调 */
-            if(self->callback != mp_const_none)
+            if(self->irq_callback != mp_const_none)
             {
                 gc_lock();
                 nlr_buf_t nlr;
                 if(nlr_push(&nlr) == 0)
                 {
-                    mp_call_function_1(self->callback, self);
+                    mp_call_function_1(self->irq_callback, self);
                     nlr_pop();
                 }
                 else
                 {
-                    self->callback = mp_const_none;
+                    self->irq_callback = mp_const_none;
 
-                    char name = 'A';
-                    switch ((uint32_t)self->port) {
-                    case ((uint32_t)GPIOA):   name = 'A';  break;
-                    case ((uint32_t)GPIOB):   name = 'B';  break;
-                    case ((uint32_t)GPIOC):   name = 'C';  break;
-                    default: break;
-                    }
-                    printf("uncaught exception in P%c%d interrupt handler\n", name, self->pbit);
+                    printf("uncaught exception on %s ISR\n", qstr_str(self->name));
 
                     mp_obj_print_exception(&mp_plat_print, (mp_obj_t)nlr.ret_val);
                 }
@@ -277,47 +350,74 @@ STATIC void GPIOX_Handler(GPIO_TypeDef *GPIOx, uint n) {
             }
         }
 
-        if(GPIOx->INTSTAT == 0) break;
+        if(GPx->INTSRC == 0) break;
     }
 }
 
-void GPIOA_Handler(void)
+void GPA_IRQHandler(void)
 {
-    GPIOX_Handler(GPIOA, 12);
+    GPX_Handler(GPA, 16);
 }
 
-void GPIOB_Handler(void)
+void GPB_IRQHandler(void)
 {
-    GPIOX_Handler(GPIOB, 12);
+    GPX_Handler(GPB, 16);
 }
 
-void GPIOC_Handler(void)
+void GPC_IRQHandler(void)
 {
-    GPIOX_Handler(GPIOC, 7);
+    GPX_Handler(GPC, 16);
+}
+
+void GPD_IRQHandler(void)
+{
+    GPX_Handler(GPD, 16);
+}
+
+void GPE_IRQHandler(void)
+{
+    GPX_Handler(GPE, 14);
+}
+
+void GPF_IRQHandler(void)
+{
+    GPX_Handler(GPF, 16);
+}
+
+void GPG_IRQHandler(void)
+{
+    GPX_Handler(GPG, 12);
+}
+
+void GPH_IRQHandler(void)
+{
+    GPX_Handler(GPH, 16);
 }
 
 
 STATIC const mp_rom_map_elem_t pin_locals_dict_table[] = {
     // instance methods
     { MP_ROM_QSTR(MP_QSTR_value),                   MP_ROM_PTR(&pin_value_obj) },
-    { MP_ROM_QSTR(MP_QSTR_high),                    MP_ROM_PTR(&pin_high_obj) },
     { MP_ROM_QSTR(MP_QSTR_low),                     MP_ROM_PTR(&pin_low_obj) },
+    { MP_ROM_QSTR(MP_QSTR_high),                    MP_ROM_PTR(&pin_high_obj) },
     { MP_ROM_QSTR(MP_QSTR_toggle),                  MP_ROM_PTR(&pin_toggle_obj) },
     { MP_ROM_QSTR(MP_QSTR_irq_enable),              MP_ROM_PTR(&pin_irq_enable_obj) },
     { MP_ROM_QSTR(MP_QSTR_irq_disable),             MP_ROM_PTR(&pin_irq_disable_obj) },
 
     // class constants
-    { MP_ROM_QSTR(MP_QSTR_IN),                      MP_ROM_INT(PIN_DIR_IN) },
-    { MP_ROM_QSTR(MP_QSTR_OUT),                     MP_ROM_INT(PIN_DIR_OUT) },
-    { MP_ROM_QSTR(MP_QSTR_PUSH_PULL),               MP_ROM_INT(PIN_MODE_PUSH_PULL) },
-    { MP_ROM_QSTR(MP_QSTR_OPEN_DRAIN),              MP_ROM_INT(PIN_MODE_OPEN_DRAIN) },
-    { MP_ROM_QSTR(MP_QSTR_PULL_UP),                 MP_ROM_INT(PIN_MODE_PULL_UP) },
-    { MP_ROM_QSTR(MP_QSTR_PULL_DOWN),               MP_ROM_INT(PIN_MODE_PULL_DOWN) },
-    { MP_ROM_QSTR(MP_QSTR_FALL_EDGE),               MP_ROM_INT(EXTI_FALL_EDGE) },
-    { MP_ROM_QSTR(MP_QSTR_RISE_EDGE),               MP_ROM_INT(EXTI_RISE_EDGE) },
-    { MP_ROM_QSTR(MP_QSTR_BOTH_EDGE),               MP_ROM_INT(EXTI_BOTH_EDGE) },
-    { MP_ROM_QSTR(MP_QSTR_LOW_LEVEL),               MP_ROM_INT(EXTI_LOW_LEVEL) },
-    { MP_ROM_QSTR(MP_QSTR_HIGH_LEVEL),              MP_ROM_INT(EXTI_HIGH_LEVEL) },
+    { MP_ROM_QSTR(MP_QSTR_IN),                      MP_ROM_INT(GPIO_MODE_INPUT) },
+    { MP_ROM_QSTR(MP_QSTR_OUT),                     MP_ROM_INT(GPIO_MODE_OUTPUT) },
+    { MP_ROM_QSTR(MP_QSTR_OPEN_DRAIN),              MP_ROM_INT(GPIO_MODE_OPEN_DRAIN) },
+    { MP_ROM_QSTR(MP_QSTR_PULL_UP),                 MP_ROM_INT(GPIO_PUSEL_PULL_UP) },
+    { MP_ROM_QSTR(MP_QSTR_PULL_DOWN),               MP_ROM_INT(GPIO_PUSEL_PULL_DOWN) },
+    { MP_ROM_QSTR(MP_QSTR_PULL_NONE),               MP_ROM_INT(GPIO_PUSEL_DISABLE) },
+    { MP_ROM_QSTR(MP_QSTR_RISE_EDGE),               MP_ROM_INT(GPIO_INT_RISING) },
+    { MP_ROM_QSTR(MP_QSTR_FALL_EDGE),               MP_ROM_INT(GPIO_INT_FALLING) },
+    { MP_ROM_QSTR(MP_QSTR_BOTH_EDGE),               MP_ROM_INT(GPIO_INT_BOTH_EDGE) },
+    { MP_ROM_QSTR(MP_QSTR_LOW_LEVEL),               MP_ROM_INT(GPIO_INT_LOW) },
+    { MP_ROM_QSTR(MP_QSTR_HIGH_LEVEL),              MP_ROM_INT(GPIO_INT_HIGH) },
+
+#include "genhdr/pins_af_const.h"
 };
 STATIC MP_DEFINE_CONST_DICT(pin_locals_dict, pin_locals_dict_table);
 

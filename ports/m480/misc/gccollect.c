@@ -30,11 +30,11 @@
 
 #include "py/gc.h"
 #include "py/mpthread.h"
+
+#include "chip/M480.h"
+
 #include "gccollect.h"
 
-/******************************************************************************
-DECLARE PUBLIC FUNCTIONS
- ******************************************************************************/
 
 void gc_collect(void) {
     gc_collect_start();

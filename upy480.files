@@ -1,6 +1,8 @@
 ports/m480/main.c
 ports/m480/mphalport.c
-fatfs_port.c
+ports/m480/fatfs_port.c
+ports/m480/boards/M480_prefix.c
+ports/m480/build-M482Lite/pins.c
 ports/m480/mods/moduos.c
 ports/m480/mods/modutime.c
 ports/m480/mods/modmachine.c
@@ -11,9 +13,11 @@ ports/m480/mods/pybflash.c
 ports/m480/mods/pybspi.c
 ports/m480/mods/pybi2c.c
 ports/m480/mods/pybadc.c
+ports/m480/mods/pybdac.c
 ports/m480/mods/pybpwm.c
 ports/m480/misc/bufhelper.c
 ports/m480/misc/gccollect.c
+ports/m480/chip/boot/gcc/startup_M480.s
 ports/m480/chip/system_M480.c
 ports/m480/chip/acmp.c
 ports/m480/chip/bpwm.c
@@ -212,5 +216,7 @@ extmod/utime_mphal.c
 extmod/uos_dupterm.c
 lib/embed/abort_.c
 lib/utils/printf.c
-C:/Ubuntu/micropython/ports/m480/m480.ld
-C:/Ubuntu/micropython/ports/m480/Makefile
+ports/m480/m480.ld
+ports/m480/Makefile
+ports/m480/build-M482Lite/micropython.elf.map
+ports/m480/build-M482Lite/micropython.elf.dis

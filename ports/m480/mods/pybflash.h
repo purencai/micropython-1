@@ -23,13 +23,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_SWM320_MODS_PYBFLASH_H
-#define MICROPY_INCLUDED_SWM320_MODS_PYBFLASH_H
+#ifndef MICROPY_INCLUDED_M480_MODS_PYBFLASH_H
+#define MICROPY_INCLUDED_M480_MODS_PYBFLASH_H
 
 #include "py/obj.h"
 
+
 extern const mp_obj_type_t pyb_flash_type;
 
+
 void pyb_flash_init_vfs(fs_user_mount_t *vfs);
+
 
 #endif

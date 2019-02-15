@@ -162,11 +162,11 @@ extern const struct _mp_obj_module_t mp_module_ubinascii;
 
 // vm state and root pointers for the gc
 #define MP_STATE_PORT MP_STATE_VM
-#define MICROPY_PORT_ROOT_POINTERS                                        \
-    const char *readline_hist[8];                                         \
-    mp_obj_t machine_config_main;                                         \
-    struct _pyb_uart_obj_t *pyb_uart_objs[4];                             \
-    struct _os_term_dup_obj_t *os_term_dup_obj;                           \
+#define MICROPY_PORT_ROOT_POINTERS                    \
+	const char *readline_hist[8];                     \
+	mp_obj_t machine_config_main;                     \
+	struct _pyb_uart_obj_t *pyb_uart_objs[6];         \
+	struct _os_term_dup_obj_t *os_term_dup_obj;       \
 
 // type definitions for the specific machine
 #define MICROPY_MAKE_POINTER_CALLABLE(p)            ((void*)((mp_uint_t)(p) | 1))
@@ -179,32 +179,39 @@ typedef int32_t         mp_int_t;                   // must be pointer size
 typedef unsigned int    mp_uint_t;                  // must be pointer size
 typedef long            mp_off_t;
 
-#include "SWM320.h"
 
-#define MP_PLAT_PRINT_STRN(str, len) mp_hal_stdout_tx_strn_cooked(str, len)
-
+/* 包含M480.h会导致宏定义“PC”冲突，无法使用__set_PRIMASK、__get_PRIMASK、__disable_irq三函数
+ * 因此直接展开其内容使用
+ */
 static inline void enable_irq(mp_uint_t state) {
-    __set_PRIMASK(state);
+    //__set_PRIMASK(state);
+    __asm volatile ("MSR primask, %0" : : "r" (state) : "memory");
 }
 
 static inline mp_uint_t disable_irq(void) {
-    mp_uint_t state = __get_PRIMASK();
-    __disable_irq();
+    //mp_uint_t state = __get_PRIMASK();
+    mp_uint_t state;
+    __asm volatile ("MRS %0, primask" : "=r" (state) );
+
+    //__disable_irq();
+    __asm volatile ("cpsid i" : : : "memory");
+
     return state;
 }
 
-#define MICROPY_BEGIN_ATOMIC_SECTION()              disable_irq()
-#define MICROPY_END_ATOMIC_SECTION(state)           enable_irq(state)
-#define MICROPY_EVENT_POLL_HOOK                     __WFI();
+#define MICROPY_EVENT_POLL_HOOK             {}
+#define MICROPY_BEGIN_ATOMIC_SECTION()      disable_irq()
+#define MICROPY_END_ATOMIC_SECTION(state)   enable_irq(state)
+
+#define MP_PLAT_PRINT_STRN(str, len) mp_hal_stdout_tx_strn_cooked(str, len)
 
 
-// There is no classical C heap in bare-metal ports, only Python
-// garbage-collected heap. For completeness, emulate C heap via
-// GC heap. Note that MicroPython core never uses malloc() and friends,
-// so these defines are mostly to help extension module writers.
+// There is no classical C heap in bare-metal ports, only Python garbage-collected heap.
+// For completeness, emulate C heap via GC heap. Note that MicroPython core never uses malloc()
+// and friends, so these defines are mostly to help extension module writers.
 #define malloc(n) m_malloc(n)
 #define free(p) m_free(p)
 #define realloc(p, n) m_realloc(p, n)
 
 // We need to provide a declaration/definition of alloca()
-#include <alloca.h>
+#include <alloca.h>		// alloca()在栈中分配空间，离开此函数时自动释放

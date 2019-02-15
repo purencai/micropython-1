@@ -1,5 +1,7 @@
+C:\Ubuntu\gcc-arm-none\arm-none-eabi\include
 .
 lib/cmsis/inc
+ports/m480
 ports/m480/chip
 ports/m480/chip/regs
 ports/m480/mods

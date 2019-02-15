@@ -24,17 +24,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_CC3200_MODS_PYBTIMER_H
-#define MICROPY_INCLUDED_CC3200_MODS_PYBTIMER_H
+#ifndef MICROPY_INCLUDED_M480_MODS_PYBTIMER_H
+#define MICROPY_INCLUDED_M480_MODS_PYBTIMER_H
 
 /******************************************************************************
  DECLARE EXPORTED DATA
  ******************************************************************************/
 extern const mp_obj_type_t pyb_timer_type;
 
-/******************************************************************************
- DECLARE PUBLIC FUNCTIONS
- ******************************************************************************/
-void timer_init0 (void);
 
-#endif // MICROPY_INCLUDED_CC3200_MODS_PYBTIMER_H
+
+#endif // MICROPY_INCLUDED_M480_MODS_PYBTIMER_H

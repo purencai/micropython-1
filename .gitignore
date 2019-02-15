@@ -39,3 +39,7 @@ user.props
 # Generated rst files
 ######################
 genrst/
+
+# FTP Settings
+######################
+sftp-config.json

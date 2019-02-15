@@ -31,10 +31,18 @@
 #include "py/runtime.h"
 #include "py/mperrno.h"
 
-#include "bufhelper.h"
+#include "chip/M480.h"
 
-#include "pybpin.h"
-#include "pybspi.h"
+#include "mods/pybpin.h"
+#include "mods/pybspi.h"
+
+#include "misc/bufhelper.h"
+
+
+#define SPI_CPHA_0  0
+#define SPI_CPHA_1  1
+#define SPI_CPOL_0  0
+#define SPI_CPOL_1  1
 
 
 /// \moduleref pyb
@@ -46,65 +54,81 @@
 typedef enum {
     PYB_SPI_0      =  0,
     PYB_SPI_1      =  1,
+    PYB_SPI_2      =  2,
+    PYB_SPI_3      =  3,
     PYB_NUM_SPIS
 } pyb_spi_id_t;
+
 
 typedef struct _pyb_spi_obj_t {
     mp_obj_base_t base;
     pyb_spi_id_t spi_id;
-    SPI_TypeDef *SPIx;
+    SPI_T *SPIx;
     uint baudrate;
     byte polarity;
     byte phase;
     bool slave;
+    bool msbf;
     byte bits;
 } pyb_spi_obj_t;
+
 
 /******************************************************************************
  DECLARE PRIVATE DATA
  ******************************************************************************/
-STATIC pyb_spi_obj_t pyb_spi_obj[PYB_NUM_SPIS] = { {.spi_id = PYB_SPI_0, .SPIx = SPI0},
-                                                   {.spi_id = PYB_SPI_1, .SPIx = SPI1}};
+STATIC pyb_spi_obj_t pyb_spi_obj[PYB_NUM_SPIS] = {
+    {.spi_id = PYB_SPI_0, .SPIx = SPI0, .baudrate = 0},
+    {.spi_id = PYB_SPI_1, .SPIx = SPI1, .baudrate = 0},
+    {.spi_id = PYB_SPI_2, .SPIx = SPI2, .baudrate = 0},
+    {.spi_id = PYB_SPI_3, .SPIx = SPI3, .baudrate = 0},
+};
+
 
 /******************************************************************************
  DEFINE PRIVATE FUNCTIONS
  ******************************************************************************/
-STATIC void pybspi_tx (pyb_spi_obj_t *self, const void *data)
+STATIC void pybspi_tx(pyb_spi_obj_t *self, const void *data)
 {
     uint32_t txdata;
 
-    if(self->bits <= 8)
-    {
-        txdata = (uint8_t)(*(char *)data);
-    }
-    else if(self->bits <= 16)
-    {
-        txdata = (uint16_t)(*(uint16_t *)data);
+    switch((self->bits+7)/8) {
+    case 1:  txdata = *((const uint8_t *) data); break;
+    case 2:  txdata = *((const uint16_t *)data); break;
+    case 3:
+    case 4:  txdata = *((const uint32_t *)data); break;
+    default: break;
     }
 
-    SPI_WriteWithWait(self->SPIx, txdata);
+    while(SPI_GET_TX_FIFO_FULL_FLAG(self->SPIx)) __NOP();
+    SPI_WRITE_TX(self->SPIx, txdata);
 }
 
-STATIC void pybspi_rx (pyb_spi_obj_t *self, void *data)
+
+STATIC void pybspi_rx(pyb_spi_obj_t *self, void *data)
 {
-    uint32_t rxdata = SPI_Read(self->SPIx);
+    while(SPI_GET_RX_FIFO_EMPTY_FLAG(self->SPIx)) __NOP();
+    uint32_t rxdata = SPI_READ_RX(self->SPIx);
 
-    if(self->bits <= 8)
+    if(data)
     {
-        *(char *)data = rxdata;
-    }
-    else if(self->bits <= 16)
-    {
-        *(uint16_t *)data = rxdata;
+        switch((self->bits+7)/8) {
+        case 1:  *((uint8_t *) data) = rxdata; break;
+        case 2:  *((uint16_t *)data) = rxdata; break;
+        case 3:
+        case 4:  *((uint32_t *)data) = rxdata; break;
+        default: break;
+        }
     }
 }
 
-STATIC void pybspi_transfer (pyb_spi_obj_t *self, const char *txdata, char *rxdata, uint32_t len, uint32_t *txchar) {
-    for (int i = 0; i < len; i += (self->bits > 8 ? 2 : 1)) {
+
+STATIC void pybspi_transfer(pyb_spi_obj_t *self, const char *txdata, char *rxdata, uint32_t len, uint32_t *txchar) {
+    for(uint i = 0; i < len; i += (self->bits+7)/8) {
         pybspi_tx(self, txdata ? (const void *)&txdata[i] : txchar);
-        pybspi_rx(self, rxdata ? (void *)&rxdata[i] : NULL);
+        pybspi_rx(self, rxdata ? (      void *)&rxdata[i] : NULL);
     }
 }
+
 
 /******************************************************************************/
 /* MicroPython bindings                                                      */
@@ -113,13 +137,10 @@ STATIC void pyb_spi_print(const mp_print_t *print, mp_obj_t self_in, mp_print_ki
 {
     pyb_spi_obj_t *self = self_in;
 
-    if (self->baudrate > 0) {
-        mp_printf(print, "SPI(%d, baudrate=%u, bits=%u, polarity=%u, phase=%u, mode=%s)",
-                 self->spi_id, self->baudrate, self->bits, self->polarity, self->phase, self->slave ? "slave" : "master");
-    } else {
-        mp_printf(print, "SPI(%d)", self->spi_id);
-    }
+    mp_printf(print, "SPI(%u, baudrate=%u, polarity=%u, phase=%u, mode=%s, msbf=%s, bits=%u)",
+        self->spi_id, self->baudrate, self->polarity, self->phase, self->slave ? "Slave" : "Master", self->msbf ? "True" : "False", self->bits);
 }
+
 
 static const mp_arg_t pyb_spi_init_args[] = {
     { MP_QSTR_id,        MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 0} },
@@ -127,25 +148,23 @@ static const mp_arg_t pyb_spi_init_args[] = {
     { MP_QSTR_polarity,  MP_ARG_KW_ONLY  | MP_ARG_INT,  {.u_int = 0} },
     { MP_QSTR_phase,     MP_ARG_KW_ONLY  | MP_ARG_INT,  {.u_int = 0} },
     { MP_QSTR_slave,     MP_ARG_KW_ONLY  | MP_ARG_BOOL, {.u_bool= false} },
+    { MP_QSTR_msbf,      MP_ARG_KW_ONLY  | MP_ARG_BOOL, {.u_bool= true} },
     { MP_QSTR_bits,      MP_ARG_KW_ONLY  | MP_ARG_INT,  {.u_int = 8} },
-    { MP_QSTR_mosi,      MP_ARG_REQUIRED |
-                         MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
-    { MP_QSTR_miso,      MP_ARG_REQUIRED |
-                         MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
-    { MP_QSTR_sclk,      MP_ARG_REQUIRED |
-                         MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
-    { MP_QSTR_ssel,      MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} }, // 从机模式下需指定
+    { MP_QSTR_mosi,      MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
+    { MP_QSTR_miso,      MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
+    { MP_QSTR_clk,       MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
+    { MP_QSTR_cs,        MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
 };
 STATIC mp_obj_t pyb_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     // parse args
     mp_map_t kw_args;
     mp_map_init_fixed_table(&kw_args, n_kw, all_args + n_args);
     mp_arg_val_t args[MP_ARRAY_SIZE(pyb_spi_init_args)];
-    mp_arg_parse_all(n_args, all_args, &kw_args, MP_ARRAY_SIZE(args), pyb_spi_init_args, args);
+    mp_arg_parse_all(n_args, all_args, &kw_args, MP_ARRAY_SIZE(pyb_spi_init_args), pyb_spi_init_args, args);
 
     // check the peripheral id
-    uint32_t spi_id = args[0].u_int;
-    if (spi_id > PYB_NUM_SPIS-1) {
+    uint spi_id = args[0].u_int;
+    if(spi_id >= PYB_NUM_SPIS) {
         mp_raise_OSError(MP_ENODEV);
     }
 
@@ -153,80 +172,83 @@ STATIC mp_obj_t pyb_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_
     self->base.type = &pyb_spi_type;
 
     self->baudrate = args[1].u_int;
-    uint clkdiv = 7;
-    for(int i = 0; i < 8; i++)
-    {
-        if(SystemCoreClock / (1 << (i+2)) < self->baudrate)
-        {
-            clkdiv = i;
-            break;
-        }
-    }
 
-    self->polarity = args[2].u_int ? 1 : 0;
-    self->phase    = args[3].u_int ? 1 : 0;
-
-    self->slave = args[4].u_bool;
-
-    self->bits = args[5].u_int;
-    if((self->bits < 4) || (self->bits > 16))
+    self->polarity = args[2].u_int;
+    if((self->polarity != SPI_CPOL_0) && (self->polarity != SPI_CPOL_1))
     {
         goto invalid_args;
     }
 
-    SPI_InitStructure SPI_initStruct;
-
-    SPI_initStruct.clkDiv = clkdiv;
-    SPI_initStruct.FrameFormat = SPI_FORMAT_SPI;
-    SPI_initStruct.SampleEdge = self->phase;
-    SPI_initStruct.IdleLevel = self->polarity;
-    SPI_initStruct.WordSize = self->bits;
-    SPI_initStruct.Master = (self->slave ? 0 : 1);
-    SPI_initStruct.RXHFullIEn = 0;
-    SPI_initStruct.TXEmptyIEn = 0;
-    SPI_Init(SPI0, &SPI_initStruct);
-    SPI_Open(SPI0);
-
-    pin_obj_t *pin_mosi = pin_find_by_name(args[6].u_obj);
-    if((pin_mosi->pbit % 2) == 1) mp_raise_ValueError("SPI MOSI need be Even number pin, like PA0, PA2, PA4");
-    pin_obj_t *pin_miso = pin_find_by_name(args[7].u_obj);
-    if((pin_miso->pbit % 2) == 0) mp_raise_ValueError("SPI MISO need be Odd  number pin, like PA1, PA3, PA5");
-    pin_obj_t *pin_sclk = pin_find_by_name(args[8].u_obj);
-    if((pin_sclk->pbit % 2) == 0) mp_raise_ValueError("SPI SCLK need be Odd  number pin, like PA1, PA3, PA5");
-    pin_obj_t *pin_ssel = mp_const_none;
-    if(self->slave)
+    self->phase    = args[3].u_int;
+    if((self->phase != SPI_CPHA_0) && (self->phase != SPI_CPHA_1))
     {
-        if(args[9].u_obj == mp_const_none)
-        {
-            mp_raise_ValueError("Slave mode: need specify SSEL pin");
-        }
-        else
-        {
-            pin_ssel = pin_find_by_name(args[9].u_obj);
-            if((pin_ssel->pbit % 2) == 1) mp_raise_ValueError("SPI SSEL need be Even number pin, like PA0, PA2, PA4");
-        }
+        goto invalid_args;
     }
 
-    switch (self->spi_id) {
+    self->slave = args[4].u_bool;
+
+    self->msbf = args[5].u_bool;
+
+    self->bits = args[6].u_int;
+    if((self->bits < 4) || (self->bits > 32))
+    {
+        goto invalid_args;
+    }
+
+    if(args[7].u_obj != mp_const_none)
+    {
+        pin_config_by_func(args[7].u_obj, "%s_SPI%d_MOSI", self->spi_id);
+    }
+
+    if(args[8].u_obj != mp_const_none)
+    {
+        pin_config_by_func(args[8].u_obj, "%s_SPI%d_MISO", self->spi_id);
+    }
+
+    if(args[9].u_obj != mp_const_none)
+    {
+        pin_config_by_func(args[9].u_obj, "%s_SPI%d_CLK", self->spi_id);
+    }
+
+    if(args[10].u_obj != mp_const_none)
+    {
+        pin_config_by_func(args[10].u_obj, "%s_SPI%d_SS", self->spi_id);
+    }
+
+    switch(self->spi_id) {
     case PYB_SPI_0:
-        pin_config(pin_mosi, FUNMUX0_SPI0_MOSI, 0, 0);
-        pin_config(pin_miso, FUNMUX1_SPI0_MISO, 0, 0);
-        pin_config(pin_sclk, FUNMUX1_SPI0_SCLK, 0, 0);
-        if(pin_ssel)
-            pin_config(pin_ssel, FUNMUX0_SPI0_SSEL, 0, 0);
+        CLK_EnableModuleClock(SPI0_MODULE);
+        CLK_SetModuleClock(SPI0_MODULE, CLK_CLKSEL2_SPI0SEL_PCLK1, 0);
         break;
 
     case PYB_SPI_1:
-        pin_config(pin_mosi, FUNMUX0_SPI1_MOSI, 0, 0);
-        pin_config(pin_miso, FUNMUX1_SPI1_MISO, 0, 0);
-        pin_config(pin_sclk, FUNMUX1_SPI1_SCLK, 0, 0);
-        if(pin_ssel)
-            pin_config(pin_ssel, FUNMUX0_SPI1_SSEL, 0, 0);
+        CLK_EnableModuleClock(SPI1_MODULE);
+        CLK_SetModuleClock(SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, 0);
+        break;
+
+    case PYB_SPI_2:
+        CLK_EnableModuleClock(SPI2_MODULE);
+        CLK_SetModuleClock(SPI2_MODULE, CLK_CLKSEL2_SPI2SEL_PCLK1, 0);
+        break;
+
+    case PYB_SPI_3:
+        CLK_EnableModuleClock(SPI3_MODULE);
+        CLK_SetModuleClock(SPI3_MODULE, CLK_CLKSEL2_SPI3SEL_PCLK0, 0);
         break;
 
     default:
         break;
     }
+
+    uint mode;
+    if((self->polarity == SPI_CPOL_0) && (self->phase = SPI_CPHA_0))      mode = SPI_MODE_0;
+    else if((self->polarity == SPI_CPOL_0) && (self->phase = SPI_CPHA_1)) mode = SPI_MODE_1;
+    else if((self->polarity == SPI_CPOL_1) && (self->phase = SPI_CPHA_0)) mode = SPI_MODE_2;
+    else if((self->polarity == SPI_CPOL_1) && (self->phase = SPI_CPHA_1)) mode = SPI_MODE_3;
+
+    if(self->msbf) SPI_SET_MSB_FIRST(self->SPIx);
+    else           SPI_SET_LSB_FIRST(self->SPIx);
+    SPI_Open(self->SPIx, self->slave ? SPI_SLAVE : SPI_MASTER, mode, self->bits, self->baudrate);
 
     return self;
 
@@ -234,7 +256,8 @@ invalid_args:
     mp_raise_ValueError("invalid argument(s) value");
 }
 
-STATIC mp_obj_t pyb_spi_write (mp_obj_t self_in, mp_obj_t buf)
+
+STATIC mp_obj_t pyb_spi_write(mp_obj_t self_in, mp_obj_t buf)
 {
     pyb_spi_obj_t *self = self_in;
 
@@ -243,59 +266,81 @@ STATIC mp_obj_t pyb_spi_write (mp_obj_t self_in, mp_obj_t buf)
     uint8_t data[1];
     pyb_buf_get_for_send(buf, &bufinfo, data);
 
+    // just send
     pybspi_transfer(self, (const char *)bufinfo.buf, NULL, bufinfo.len, NULL);
 
     return mp_obj_new_int(bufinfo.len);     // return the number of bytes written
 }
+
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(pyb_spi_write_obj, pyb_spi_write);
 
-STATIC mp_obj_t pyb_spi_read(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_nbytes,    MP_ARG_REQUIRED | MP_ARG_OBJ, },
-        { MP_QSTR_write,     MP_ARG_INT, {.u_int = 0x00} },
-    };
 
+static const mp_arg_t pyb_spi_read_args[] = {
+    { MP_QSTR_nbytes,  MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = mp_const_none} },
+    { MP_QSTR_write,   MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0xFF} },
+};
+STATIC mp_obj_t pyb_spi_read(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     // parse args
     pyb_spi_obj_t *self = pos_args[0];
-    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
-    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(args), allowed_args, args);
+    mp_arg_val_t args[MP_ARRAY_SIZE(pyb_spi_read_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(pyb_spi_read_args), pyb_spi_read_args, args);
 
     // get the buffer to receive into
     vstr_t vstr;
-    pyb_buf_get_for_recv(args[0].u_obj, &vstr);
+    pyb_buf_get_for_recv(args[0].u_obj, &vstr); // first arg need mp_obj_t type
 
     // just receive
-    uint32_t write = args[1].u_int;
-    pybspi_transfer(self, NULL, vstr.buf, vstr.len, &write);
+    pybspi_transfer(self, NULL, vstr.buf, vstr.len, (uint32_t *)&args[1].u_int);
 
-    // return the received data
-    return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
+    return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);     // return the received data
 }
+
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_spi_read_obj, 1, pyb_spi_read);
 
-STATIC mp_obj_t pyb_spi_readinto(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_buf,       MP_ARG_REQUIRED | MP_ARG_OBJ, },
-        { MP_QSTR_write,     MP_ARG_INT, {.u_int = 0x00} },
-    };
 
+static const mp_arg_t pyb_spi_readinto_args[] = {
+    { MP_QSTR_buf,     MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = mp_const_none} },
+    { MP_QSTR_write,   MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0xFF} },
+};
+STATIC mp_obj_t pyb_spi_readinto(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     // parse args
     pyb_spi_obj_t *self = pos_args[0];
-    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
-    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(args), allowed_args, args);
+    mp_arg_val_t args[MP_ARRAY_SIZE(pyb_spi_readinto_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(pyb_spi_readinto_args), pyb_spi_readinto_args, args);
 
     // get the buffer to receive into
     vstr_t vstr;
     pyb_buf_get_for_recv(args[0].u_obj, &vstr);
 
     // just receive
-    uint32_t write = args[1].u_int;
-    pybspi_transfer(self, NULL, vstr.buf, vstr.len, &write);
+    pybspi_transfer(self, NULL, vstr.buf, vstr.len, (uint32_t *)&args[1].u_int);
 
-    // return the number of bytes received
-    return mp_obj_new_int(vstr.len);
+    return mp_obj_new_int(vstr.len);    // return the number of bytes received
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_spi_readinto_obj, 1, pyb_spi_readinto);
+
+
+STATIC mp_obj_t pyb_spi_write_read(mp_obj_t self_in, mp_obj_t buf)
+{
+    pyb_spi_obj_t *self = self_in;
+
+    // get the buffer to send from
+    mp_buffer_info_t bufinfo;
+    uint8_t data[1];
+    pyb_buf_get_for_send(buf, &bufinfo, data);
+
+    // get the buffer to receive into
+    vstr_t vstr;
+    pyb_buf_get_for_recv(MP_OBJ_NEW_SMALL_INT(bufinfo.len), &vstr); // first arg need mp_obj_t type
+
+    // send and receive
+    pybspi_transfer(self, (const char *)bufinfo.buf, vstr.buf, bufinfo.len, NULL);
+
+    return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);     // return the received data
+}
+
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(pyb_spi_write_read_obj, pyb_spi_write_read);
+
 
 STATIC mp_obj_t pyb_spi_write_readinto (mp_obj_t self, mp_obj_t writebuf, mp_obj_t readbuf) {
     // get buffers to write from/read to
@@ -303,7 +348,7 @@ STATIC mp_obj_t pyb_spi_write_readinto (mp_obj_t self, mp_obj_t writebuf, mp_obj
     uint8_t data_send[1];
     mp_buffer_info_t bufinfo_read;
 
-    if (writebuf == readbuf) {
+    if(writebuf == readbuf) {
         // same object for writing and reading, it must be a r/w buffer
         mp_get_buffer_raise(writebuf, &bufinfo_write, MP_BUFFER_RW);
         bufinfo_read = bufinfo_write;
@@ -321,25 +366,29 @@ STATIC mp_obj_t pyb_spi_write_readinto (mp_obj_t self, mp_obj_t writebuf, mp_obj
     // send and receive
     pybspi_transfer(self, (const char *)bufinfo_write.buf, bufinfo_read.buf, bufinfo_write.len, NULL);
 
-    // return the number of transferred bytes
-    return mp_obj_new_int(bufinfo_write.len);
+    return mp_obj_new_int(bufinfo_write.len);   // return the number of transferred bytes
 }
+
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(pyb_spi_write_readinto_obj, pyb_spi_write_readinto);
+
 
 STATIC const mp_rom_map_elem_t pyb_spi_locals_dict_table[] = {
     // instance methods
     { MP_ROM_QSTR(MP_QSTR_write),               MP_ROM_PTR(&pyb_spi_write_obj) },
     { MP_ROM_QSTR(MP_QSTR_read),                MP_ROM_PTR(&pyb_spi_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_readinto),            MP_ROM_PTR(&pyb_spi_readinto_obj) },
+    { MP_ROM_QSTR(MP_QSTR_write_read),          MP_ROM_PTR(&pyb_spi_write_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_readinto),      MP_ROM_PTR(&pyb_spi_write_readinto_obj) },
 
     // class constants
-    { MP_ROM_QSTR(MP_QSTR_EDGE_FIRST),          MP_ROM_INT(SPI_FIRST_EDGE) },
-    { MP_ROM_QSTR(MP_QSTR_EDGE_SECOND),         MP_ROM_INT(SPI_SECOND_EDGE) },
-    { MP_ROM_QSTR(MP_QSTR_LEVEL_LOW),           MP_ROM_INT(SPI_LOW_LEVEL) },
-    { MP_ROM_QSTR(MP_QSTR_LEVEL_HIGH),          MP_ROM_INT(SPI_HIGH_LEVEL) },
+    { MP_ROM_QSTR(MP_QSTR_CPHA_0),              MP_ROM_INT(SPI_CPHA_0) },
+    { MP_ROM_QSTR(MP_QSTR_CPHA_1),              MP_ROM_INT(SPI_CPHA_1) },
+    { MP_ROM_QSTR(MP_QSTR_CPOL_0),              MP_ROM_INT(SPI_CPOL_0) },
+    { MP_ROM_QSTR(MP_QSTR_CPOL_1),              MP_ROM_INT(SPI_CPOL_1) },
 };
+
 STATIC MP_DEFINE_CONST_DICT(pyb_spi_locals_dict, pyb_spi_locals_dict_table);
+
 
 const mp_obj_type_t pyb_spi_type = {
     { &mp_type_type },

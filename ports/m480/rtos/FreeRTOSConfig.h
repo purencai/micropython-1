@@ -126,10 +126,10 @@ to exclude the API function. */
 #define INCLUDE_eTaskGetState					0
 #define INCLUDE_xSemaphoreGetMutexHolder		0
 
-#define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
+#define configKERNEL_INTERRUPT_PRIORITY 		(0xF << 4 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
 /* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
 See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 1 << 5 )  /* Priority 5, or 160 as only the top three bits are implemented. */
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 1 << 4 )  /* Priority 5, or 160 as only the top three bits are implemented. */
 
 /* Use the Cortex-M3 optimised task selection rather than the generic C code version. */
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 1

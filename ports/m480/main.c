@@ -37,36 +37,63 @@
 #include "py/runtime.h"
 #include "py/repl.h"
 #include "py/gc.h"
+
 #include "lib/utils/pyexec.h"
 #include "lib/mp-readline/readline.h"
-#include "gccollect.h"
 
 #include "lib/oofatfs/ff.h"
 #include "lib/oofatfs/diskio.h"
 #include "extmod/vfs.h"
 #include "extmod/vfs_fat.h"
 
-#include "lib/timeutils/timeutils.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
-#include "pybuart.h"
-#include "pybflash.h"
+#include "chip/M480.h"
+
+#include "mods/pybuart.h"
+#include "mods/pybflash.h"
+
+#include "misc/gccollect.h"
 
 
 static const char fresh_main_py[] = "# main.py -- put your code here!\r\n";
 static const char fresh_boot_py[] = "# boot.py -- run on boot-up\r\n"
                                     "# can run arbitrary Python, but best to keep it minimal\r\n"
-                                    #if MICROPY_STDIO_UART
+                                    #ifdef MICROPY_STDIO_UART
                                     "import os, machine\r\n"
-                                    "os.dupterm(machine.UART(0, " MP_STRINGIFY(MICROPY_STDIO_UART_BAUD) ", txd='PA3', rxd='PA2'))\r\n"
+                                    "os.dupterm(machine.UART(0, 115200, rxd='PA0', txd='PA1'))\r\n"
                                     #endif
                                     ;
 
-STATIC void init_sflash_filesystem (void);
 
-int main (void) {
-    SystemInit();
+static void systemInit(void);
+static void Task_MicroPy(void *argv);
+static void init_sflash_filesystem(void);
 
-    SysTick_Config(SystemCoreClock / 1000);
+
+#define TAKS_MICROPY_PRIORITY   10
+static StaticTask_t Task_MicroPy_TCB;
+#define TASK_MICROPY_STK_DEPTH  (1024 * 16 / sizeof(StackType_t))
+static StackType_t  Task_MicroPy_Stk[TASK_MICROPY_STK_DEPTH];
+
+int main(void)
+{
+    systemInit();
+
+    xTaskCreateStatic(Task_MicroPy, "MicroPy", TASK_MICROPY_STK_DEPTH, NULL,
+                      TAKS_MICROPY_PRIORITY, Task_MicroPy_Stk, &Task_MicroPy_TCB);
+
+    vTaskStartScheduler();
+}
+
+
+static void Task_MicroPy(void *argv)
+{
+    uint sp = __get_PSP();
+
+soft_reset:
+    mp_stack_set_top((void*)sp);
 
     gc_init(&__HeapBase, &__HeapLimit);
 
@@ -92,7 +119,7 @@ int main (void) {
     // run boot.py
     int ret = pyexec_file("boot.py");
     if (ret & PYEXEC_FORCED_EXIT) {
-        goto err_forever;
+       goto soft_reset_exit;
     }
     if (!ret) {
         //mperror_signal_error();
@@ -101,7 +128,7 @@ int main (void) {
     // run main.py
     ret = pyexec_file("main.py");
     if (ret & PYEXEC_FORCED_EXIT) {
-        goto err_forever;
+        goto soft_reset_exit;
     }
     if (!ret) {
         //mperror_signal_error();
@@ -120,29 +147,29 @@ int main (void) {
         }
     }
 
-err_forever:
-    while(1)
-    {
+soft_reset_exit:
 
-    }
+    // soft reset
+    goto soft_reset;
 }
 
 
-STATIC void init_sflash_filesystem (void) {
+static void init_sflash_filesystem(void)
+{
+    static fs_user_mount_t vfs_fat;
     FILINFO fno;
 
     // Initialise the local flash filesystem.
     // init the vfs object
-    fs_user_mount_t *vfs_fat = malloc(sizeof(fs_user_mount_t));
-    vfs_fat->flags = 0;
-    pyb_flash_init_vfs(vfs_fat);
+    vfs_fat.flags = 0;
+    pyb_flash_init_vfs(&vfs_fat);
 
     // Create it if needed, and mount in on /flash.
-    FRESULT res = f_mount(&vfs_fat->fatfs);
+    FRESULT res = f_mount(&vfs_fat.fatfs);
     if (res == FR_NO_FILESYSTEM) {
         // no filesystem, so create a fresh one
         uint8_t working_buf[_MAX_SS];
-        res = f_mkfs(&vfs_fat->fatfs, FM_FAT | FM_SFD, 0, working_buf, sizeof(working_buf));
+        res = f_mkfs(&vfs_fat.fatfs, FM_FAT | FM_SFD, 0, working_buf, sizeof(working_buf));
         if (res != FR_OK) {
             //printf("failed to create /flash");
             while(1) __NOP();
@@ -157,38 +184,38 @@ STATIC void init_sflash_filesystem (void) {
     }
     vfs->str = "/flash";
     vfs->len = 6;
-    vfs->obj = MP_OBJ_FROM_PTR(vfs_fat);
+    vfs->obj = MP_OBJ_FROM_PTR(&vfs_fat);
     vfs->next = NULL;
     MP_STATE_VM(vfs_mount_table) = vfs;
 
     MP_STATE_PORT(vfs_cur) = vfs;
 
     // create /flash/sys, /flash/lib if they don't exist
-    if (FR_OK != f_chdir(&vfs_fat->fatfs, "/sys")) {
-        f_mkdir(&vfs_fat->fatfs, "/sys");
+    if (FR_OK != f_chdir(&vfs_fat.fatfs, "/sys")) {
+        f_mkdir(&vfs_fat.fatfs, "/sys");
     }
-    if (FR_OK != f_chdir(&vfs_fat->fatfs, "/lib")) {
-        f_mkdir(&vfs_fat->fatfs, "/lib");
+    if (FR_OK != f_chdir(&vfs_fat.fatfs, "/lib")) {
+        f_mkdir(&vfs_fat.fatfs, "/lib");
     }
 
-    f_chdir(&vfs_fat->fatfs, "/");
+    f_chdir(&vfs_fat.fatfs, "/");
 
     // make sure we have a /flash/boot.py.  Create it if needed.
-    res = f_stat(&vfs_fat->fatfs, "/boot.py", &fno);
+    res = f_stat(&vfs_fat.fatfs, "/boot.py", &fno);
     if (res != FR_OK) {
         // doesn't exist, create fresh file
         FIL fp;
-        f_open(&vfs_fat->fatfs, &fp, "/boot.py", FA_WRITE | FA_CREATE_ALWAYS);
+        f_open(&vfs_fat.fatfs, &fp, "/boot.py", FA_WRITE | FA_CREATE_ALWAYS);
         UINT n;
         f_write(&fp, fresh_boot_py, sizeof(fresh_boot_py) - 1 /* don't count null terminator */, &n);
         f_close(&fp);
     }
 
-    res = f_stat(&vfs_fat->fatfs, "/main.py", &fno);
+    res = f_stat(&vfs_fat.fatfs, "/main.py", &fno);
     if (res != FR_OK) {
         // doesn't exist, create fresh file
         FIL fp;
-        f_open(&vfs_fat->fatfs, &fp, "/main.py", FA_WRITE | FA_CREATE_ALWAYS);
+        f_open(&vfs_fat.fatfs, &fp, "/main.py", FA_WRITE | FA_CREATE_ALWAYS);
         UINT n;
         f_write(&fp, fresh_main_py, sizeof(fresh_main_py) - 1 /* don't count null terminator */, &n);
         f_close(&fp);
@@ -201,21 +228,50 @@ fail:
     while(1) __NOP();
 }
 
-DWORD get_fattime(void) {
-    //timeutils_struct_time_t tm;
-    //timeutils_seconds_since_2000_to_struct_time(pyb_rtc_get_seconds(), &tm);
 
-    // return ((tm.tm_year - 1980) << 25) | ((tm.tm_mon) << 21)  |
-    //         ((tm.tm_mday) << 16)       | ((tm.tm_hour) << 11) |
-    //         ((tm.tm_min) << 5)         | (tm.tm_sec >> 1);
+static void systemInit(void)
+{
+    SYS_UnlockReg();
 
-    return 0;
+    SYS->GPF_MFPH &= ~(SYS_GPF_MFPL_PF2MFP_Msk     | SYS_GPF_MFPL_PF3MFP_Msk);
+    SYS->GPF_MFPH |=  (SYS_GPF_MFPL_PF2MFP_XT1_OUT | SYS_GPF_MFPL_PF3MFP_XT1_IN);
+
+    CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);		// 使能HXT（外部晶振，12MHz）
+    CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);	// 等待HXT稳定
+
+    /* Set access cycle for CPU @ 192MHz */
+    FMC->CYCCTL = (FMC->CYCCTL & ~FMC_CYCCTL_CYCLE_Msk) | (8 << FMC_CYCCTL_CYCLE_Pos);
+    CLK_SetCoreClock(192000000);				// 用PLL产生指定频率作为系统时钟
+                                                // 若HXT使能，则PLL时钟源选择HXT，须根据实际情况修改__HXT的值
+
+    CLK->PCLKDIV = CLK_PCLKDIV_PCLK0DIV1 | CLK_PCLKDIV_PCLK1DIV1;   // APB都与CPU同频
+
+    SYS_LockReg();
+
+    SystemCoreClock = 192000000;
+
+    CyclesPerUs = SystemCoreClock / 1000000;
+}
+
+
+// This is the static memory (TCB and stack) for the idle task
+static StaticTask_t TaskIdleTCB;
+static StackType_t  TaskIdleStack[configMINIMAL_STACK_SIZE];
+
+// We need this when configSUPPORT_STATIC_ALLOCATION is enabled
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer,
+                                       StackType_t **ppxIdleTaskStackBuffer,
+                                       uint32_t *pulIdleTaskStackSize ) {
+    *ppxIdleTaskTCBBuffer = &TaskIdleTCB;
+    *ppxIdleTaskStackBuffer = TaskIdleStack;
+    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
 }
 
 
 void NORETURN __fatal_error(const char *msg) {
    while(1) __NOP();
 }
+
 
 void __assert_func(const char *file, int line, const char *func, const char *expr) {
     (void) func;
@@ -225,6 +281,7 @@ void __assert_func(const char *file, int line, const char *func, const char *exp
     //printf("Assertion failed: %s, file %s, line %d\n", expr, file, line);
     __fatal_error(NULL);
 }
+
 
 void nlr_jump_fail(void *val) {
     __fatal_error(NULL);

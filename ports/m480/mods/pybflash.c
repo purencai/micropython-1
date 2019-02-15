@@ -29,11 +29,12 @@
 
 #include "py/runtime.h"
 
+#include "extmod/vfs.h"
+#include "extmod/vfs_fat.h"
 #include "lib/oofatfs/ff.h"
 #include "lib/oofatfs/diskio.h"
 
-#include "extmod/vfs.h"
-#include "extmod/vfs_fat.h"
+#include "chip/M480.h"
 
 #include "mods/pybflash.h"
 
@@ -53,6 +54,7 @@ static uint32_t FLASH_Block_Index = 0;
 static uint32_t FLASH_Block_IndexPre = 0xFFFFFFFF;
 
 static uint32_t FLASH_Cache_Dirty = 0;
+
 
 DRESULT flash_disk_flush (void);
 
@@ -85,7 +87,7 @@ DRESULT flash_disk_read(BYTE *buff, DWORD sector, UINT count) {
         }
 
         // Copy the requested sector from the block cache
-        memcpy (buff, &FLASH_Block_Cache[(index_in_block * FLASH_SECTOR_SIZE) / 4], FLASH_SECTOR_SIZE);
+        memcpy(buff, &FLASH_Block_Cache[(index_in_block * FLASH_SECTOR_SIZE) / 4], FLASH_SECTOR_SIZE);
         buff += FLASH_SECTOR_SIZE;
     }
 
@@ -124,14 +126,32 @@ DRESULT flash_disk_write(const BYTE *buff, DWORD sector, UINT count) {
 
 DRESULT flash_disk_flush (void) {
     // Write back the cache if it's dirty
-    if (FLASH_Cache_Dirty) {
-        FLASH_Erase(FLASH_BASE_ADDR + FLASH_BLOCK_SIZE * FLASH_Block_IndexPre);
-        FLASH_Write(FLASH_BASE_ADDR + FLASH_BLOCK_SIZE * FLASH_Block_IndexPre, FLASH_Block_Cache, FLASH_BLOCK_SIZE/4);
+    if (FLASH_Cache_Dirty)
+    {
+        SYS_UnlockReg();
+
+        FMC_Open();
+
+        FMC_ENABLE_AP_UPDATE();
+
+        FMC_Erase(FLASH_BASE_ADDR + FLASH_BLOCK_SIZE * FLASH_Block_IndexPre);
+
+        for(uint i = 0; i < FLASH_BLOCK_SIZE; i += 8)
+        {
+            FMC_Write8Bytes(FLASH_BASE_ADDR + FLASH_BLOCK_SIZE * FLASH_Block_IndexPre + i, FLASH_Block_Cache[i/4], FLASH_Block_Cache[i/4+1]);
+        }
+
+        FMC_DISABLE_AP_UPDATE();
+
+        FMC_Close();
+
+        SYS_LockReg();
 
         FLASH_Cache_Dirty = 0;
     }
     return RES_OK;
 }
+
 
 /******************************************************************************/
 // MicroPython bindings to expose the internal flash as an object with the
@@ -139,6 +159,7 @@ DRESULT flash_disk_flush (void) {
 
 // there is a singleton Flash object
 STATIC const mp_obj_base_t pyb_flash_obj = {&pyb_flash_type};
+
 
 STATIC mp_obj_t pyb_flash_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     // check arguments
@@ -148,6 +169,7 @@ STATIC mp_obj_t pyb_flash_make_new(const mp_obj_type_t *type, size_t n_args, siz
     return (mp_obj_t)&pyb_flash_obj;
 }
 
+
 STATIC mp_obj_t pyb_flash_readblocks(mp_obj_t self, mp_obj_t block_num, mp_obj_t buf) {
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(buf, &bufinfo, MP_BUFFER_WRITE);
@@ -156,6 +178,7 @@ STATIC mp_obj_t pyb_flash_readblocks(mp_obj_t self, mp_obj_t block_num, mp_obj_t
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(pyb_flash_readblocks_obj, pyb_flash_readblocks);
 
+
 STATIC mp_obj_t pyb_flash_writeblocks(mp_obj_t self, mp_obj_t block_num, mp_obj_t buf) {
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(buf, &bufinfo, MP_BUFFER_READ);
@@ -163,6 +186,7 @@ STATIC mp_obj_t pyb_flash_writeblocks(mp_obj_t self, mp_obj_t block_num, mp_obj_
     return MP_OBJ_NEW_SMALL_INT(res != RES_OK); // return of 0 means success
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(pyb_flash_writeblocks_obj, pyb_flash_writeblocks);
+
 
 STATIC mp_obj_t pyb_flash_ioctl(mp_obj_t self, mp_obj_t cmd_in, mp_obj_t arg_in) {
     mp_int_t cmd = mp_obj_get_int(cmd_in);
@@ -179,6 +203,7 @@ STATIC mp_obj_t pyb_flash_ioctl(mp_obj_t self, mp_obj_t cmd_in, mp_obj_t arg_in)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(pyb_flash_ioctl_obj, pyb_flash_ioctl);
 
+
 STATIC const mp_rom_map_elem_t pyb_flash_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_readblocks), MP_ROM_PTR(&pyb_flash_readblocks_obj) },
     { MP_ROM_QSTR(MP_QSTR_writeblocks), MP_ROM_PTR(&pyb_flash_writeblocks_obj) },
@@ -187,12 +212,14 @@ STATIC const mp_rom_map_elem_t pyb_flash_locals_dict_table[] = {
 
 STATIC MP_DEFINE_CONST_DICT(pyb_flash_locals_dict, pyb_flash_locals_dict_table);
 
+
 const mp_obj_type_t pyb_flash_type = {
     { &mp_type_type },
     .name = MP_QSTR_Flash,
     .make_new = pyb_flash_make_new,
     .locals_dict = (mp_obj_t)&pyb_flash_locals_dict,
 };
+
 
 void pyb_flash_init_vfs(fs_user_mount_t *vfs) {
     vfs->base.type = &mp_fat_vfs_type;

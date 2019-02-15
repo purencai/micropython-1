@@ -30,17 +30,20 @@
 
 #include "py/runtime.h"
 #include "py/mphal.h"
-#include "moduos.h"
-#include "random.h"
-#include "gccollect.h"
 
-#include "pybpin.h"
-#include "pybuart.h"
-#include "pybadc.h"
-#include "pybspi.h"
-#include "pybi2c.h"
-#include "pybtimer.h"
-#include "pybpwm.h"
+#include "extmod/vfs.h"
+#include "extmod/vfs_fat.h"
+
+#include "mods/moduos.h"
+#include "mods/pybpin.h"
+#include "mods/pybuart.h"
+#include "mods/pybflash.h"
+#include "mods/pybtimer.h"
+#include "mods/pybspi.h"
+#include "mods/pybi2c.h"
+#include "mods/pybadc.h"
+#include "mods/pybdac.h"
+#include "mods/pybpwm.h"
 
 
 /// \module machine - functions related to the SoC
@@ -49,16 +52,9 @@
 /******************************************************************************/
 // MicroPython bindings;
 
-STATIC mp_obj_t machine_reset(void) {
-    NVIC_SystemReset();
-
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_reset_obj, machine_reset);
-
 STATIC mp_obj_t machine_info(uint n_args, const mp_obj_t *args) {
     printf("---------------------------------------------\n");
-    printf("SWM320Lite\n");
+    printf("M482Lite\n");
     printf("---------------------------------------------\n");
 
     return mp_const_none;
@@ -79,6 +75,13 @@ STATIC mp_obj_t machine_main(mp_obj_t main) {
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_1(machine_main_obj, machine_main);
+
+STATIC mp_obj_t machine_reset(void) {
+    NVIC_SystemReset();
+
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_reset_obj, machine_reset);
 
 STATIC mp_obj_t machine_sleep (void) {
     //pyb_sleep_sleep();
@@ -101,19 +104,21 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_wake_reason_obj, machine_wake_reason);
 STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),            MP_ROM_QSTR(MP_QSTR_umachine) },
 
-    { MP_ROM_QSTR(MP_QSTR_reset),               MP_ROM_PTR(&machine_reset_obj) },
     { MP_ROM_QSTR(MP_QSTR_info),                MP_ROM_PTR(&machine_info_obj) },
     { MP_ROM_QSTR(MP_QSTR_freq),                MP_ROM_PTR(&machine_freq_obj) },
     { MP_ROM_QSTR(MP_QSTR_main),                MP_ROM_PTR(&machine_main_obj) },
+    { MP_ROM_QSTR(MP_QSTR_reset),               MP_ROM_PTR(&machine_reset_obj) },
     { MP_ROM_QSTR(MP_QSTR_sleep),               MP_ROM_PTR(&machine_sleep_obj) },
     { MP_ROM_QSTR(MP_QSTR_reset_cause),         MP_ROM_PTR(&machine_reset_cause_obj) },
     { MP_ROM_QSTR(MP_QSTR_wake_reason),         MP_ROM_PTR(&machine_wake_reason_obj) },
     { MP_ROM_QSTR(MP_QSTR_Pin),                 MP_ROM_PTR(&pin_type) },
-    { MP_ROM_QSTR(MP_QSTR_Timer),               MP_ROM_PTR(&pyb_timer_type) },
     { MP_ROM_QSTR(MP_QSTR_UART),                MP_ROM_PTR(&pyb_uart_type) },
+    { MP_ROM_QSTR(MP_QSTR_Flash),               MP_ROM_PTR(&pyb_flash_type) },
+    { MP_ROM_QSTR(MP_QSTR_Timer),               MP_ROM_PTR(&pyb_timer_type) },
     { MP_ROM_QSTR(MP_QSTR_SPI),                 MP_ROM_PTR(&pyb_spi_type) },
     { MP_ROM_QSTR(MP_QSTR_I2C),                 MP_ROM_PTR(&pyb_i2c_type) },
     { MP_ROM_QSTR(MP_QSTR_ADC),                 MP_ROM_PTR(&pyb_adc_type) },
+    { MP_ROM_QSTR(MP_QSTR_DAC),                 MP_ROM_PTR(&pyb_dac_type) },
     { MP_ROM_QSTR(MP_QSTR_PWM),                 MP_ROM_PTR(&pyb_pwm_type) },
 
     // class constants

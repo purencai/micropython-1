@@ -31,16 +31,18 @@
 #include "py/objtuple.h"
 #include "py/objstr.h"
 #include "py/runtime.h"
+
 #include "lib/timeutils/timeutils.h"
 #include "lib/oofatfs/ff.h"
 #include "lib/oofatfs/diskio.h"
+
 #include "genhdr/mpversion.h"
-#include "moduos.h"
+
 #include "extmod/vfs.h"
 #include "extmod/vfs_fat.h"
-#include "random.h"
 
-#include "pybuart.h"
+#include "mods/moduos.h"
+#include "mods/pybuart.h"
 
 /// \module os - basic "operating system" services
 ///
@@ -49,7 +51,7 @@
 /// The filesystem has `/` as the root directory, and the available physical
 /// drives are accessible from here.  They are currently:
 ///
-///     /flash      -- the serial flash filesystem
+///     /flash      -- the flash filesystem
 ///
 /// On boot up, the current directory is `/flash`.
 
@@ -58,19 +60,6 @@
  ******************************************************************************/
 STATIC os_term_dup_obj_t os_term_dup_obj;
 
-/******************************************************************************
- DEFINE PUBLIC FUNCTIONS
- ******************************************************************************/
-
-void osmount_unmount_all (void) {
-    //TODO
-    /*
-    for (mp_uint_t i = 0; i < MP_STATE_PORT(mount_obj_list).len; i++) {
-        os_fs_mount_t *mount_obj = ((os_fs_mount_t *)(MP_STATE_PORT(mount_obj_list).items[i]));
-        unmount(mount_obj);
-    }
-    */
-}
 
 /******************************************************************************/
 // MicroPython bindings
@@ -109,8 +98,8 @@ STATIC mp_obj_t os_urandom(mp_obj_t num) {
     mp_int_t n = mp_obj_get_int(num);
     vstr_t vstr;
     vstr_init_len(&vstr, n);
-    for (int i = 0; i < n; i++) {
-        vstr.buf[i] = rng_get();
+    for(int i = 0; i < n; i++) {
+        vstr.buf[i] = 0;//TODO: rng_get();
     }
     return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
 }

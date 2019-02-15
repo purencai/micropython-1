@@ -24,8 +24,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_CC3200_MODS_MODUOS_H
-#define MICROPY_INCLUDED_CC3200_MODS_MODUOS_H
+#ifndef MICROPY_INCLUDED_M480_MODS_MODUOS_H
+#define MICROPY_INCLUDED_M480_MODS_MODUOS_H
 
 #include "py/obj.h"
 
@@ -39,9 +39,5 @@ typedef struct _os_term_dup_obj_t {
     mp_obj_t write[3];
 } os_term_dup_obj_t;
 
-/******************************************************************************
- DECLARE PUBLIC FUNCTIONS
- ******************************************************************************/
-void osmount_unmount_all (void);
 
-#endif // MICROPY_INCLUDED_CC3200_MODS_MODUOS_H
+#endif // MICROPY_INCLUDED_M480_MODS_MODUOS_H

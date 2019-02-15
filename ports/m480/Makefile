@@ -23,7 +23,7 @@ CROSS_COMPILE ?= arm-none-eabi-
 CPPDEFINES = -Dgcc
 
 CFLAGS  = -mthumb -march=armv7e-m -mcpu=cortex-m4 -mabi=aapcs -msoft-float -mfloat-abi=soft -fsingle-precision-constant -Wdouble-promotion
-CFLAGS += -Wall -Wpointer-arith -Werror -std=gnu99 -nostdlib -O0
+CFLAGS += -Wall -Wpointer-arith -std=gnu99 -nostdlib -O0
 CFLAGS += -g -ffunction-sections -fdata-sections -fno-common -fsigned-char -mno-unaligned-access
 CFLAGS += $(CPPDEFINES) $(CFLAGS_MOD)
 
@@ -58,12 +58,13 @@ MODS_SRC_C = $(addprefix mods/,\
 	modmachine.c \
 	pybpin.c \
 	pybuart.c \
-	pybtimer.c \
 	pybflash.c \
+	pybtimer.c \
 	pybspi.c \
 	pybi2c.c \
 	pybadc.c \
-	pybpwm.c \
+	pybdac.c \
+    pybpwm.c \
 )
 
 MISC_SRC_C = $(addprefix misc/,\
@@ -93,7 +94,6 @@ CHIP_SRC_C = $(addprefix chip/,\
 	pdma.c \
 	qei.c \
 	qspi.c \
-	retarget.c \
 	rtc.c \
 	sc.c \
 	scuart.c \
@@ -113,7 +113,7 @@ CHIP_SRC_C = $(addprefix chip/,\
 )
 
 CHIP_SRC_S = $(addprefix chip/,\
-	boot/GCC/startup_M480.S \
+	boot/gcc/startup_M480.s \
 )
 
 RTOS_SRC_C = $(addprefix rtos/,\
@@ -170,7 +170,7 @@ $(OBJ): | $(HEADER_BUILD)/pins.h
 # Call make-pins.py to generate both pins.c and pins.h
 $(BUILD)/pins.c $(HEADER_BUILD)/pins.h $(BUILD)/pins_qstr.h: chip/sys.h boards/M480_prefix.c | $(HEADER_BUILD)
 	$(ECHO) "Create $@"
-	$(Q)$(PYTHON) boards/make-pins.py --af chip/sys.h --prefix boards/M480_prefix.c --hdr $(HEADER_BUILD)/pins.h --qstr $(BUILD)/pins_qstr.h > $(BUILD)/pins.c
+	$(Q)$(PYTHON) boards/make-pins.py --af chip/sys.h --prefix boards/M480_prefix.c --hdr $(HEADER_BUILD)/pins.h --qstr $(BUILD)/pins_qstr.h --af-const $(HEADER_BUILD)/pins_af_const.h > $(BUILD)/pins.c
 
 $(BUILD)/pins.o: $(BUILD)/pins.c
 	$(call compile_c)
