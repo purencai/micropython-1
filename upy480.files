@@ -6,6 +6,10 @@ ports/m480/build-M482Lite/pins.c
 ports/m480/mods/moduos.c
 ports/m480/mods/modutime.c
 ports/m480/mods/modmachine.c
+ports/m480/mods/esp8285.c
+ports/m480/mods/modesp8285.c
+ports/m480/mods/modnetwork.c
+ports/m480/mods/modusocket.c
 ports/m480/mods/pybpin.c
 ports/m480/mods/pybuart.c
 ports/m480/mods/pybtimer.c
@@ -15,6 +19,13 @@ ports/m480/mods/pybi2c.c
 ports/m480/mods/pybadc.c
 ports/m480/mods/pybdac.c
 ports/m480/mods/pybpwm.c
+ports/m480/mods/pybcan.c
+ports/m480/mods/pybusb.c
+ports/m480/mods/usb_desc.c
+ports/m480/mods/usb_tran.c
+ports/m480/mods/pybdma.c
+ports/m480/mods/pybrtc.c
+ports/m480/mods/pybrng.c
 ports/m480/misc/bufhelper.c
 ports/m480/misc/gccollect.c
 ports/m480/chip/boot/gcc/startup_M480.s

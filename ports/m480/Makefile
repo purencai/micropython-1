@@ -65,6 +65,12 @@ MODS_SRC_C = $(addprefix mods/,\
 	pybadc.c \
 	pybdac.c \
     pybpwm.c \
+	pybcan.c \
+	pybusb.c \
+	usb_desc.c \
+	usb_tran.c \
+	pybrtc.c \
+	pybrng.c \
 )
 
 MISC_SRC_C = $(addprefix misc/,\

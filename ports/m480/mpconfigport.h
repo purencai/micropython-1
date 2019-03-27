@@ -130,6 +130,8 @@
 
 // extra built in modules to add to the list of known ones
 extern const struct _mp_obj_module_t machine_module;
+extern const struct _mp_obj_module_t network_module;
+extern const struct _mp_obj_module_t socket_module;
 extern const struct _mp_obj_module_t mp_module_ure;
 extern const struct _mp_obj_module_t mp_module_ujson;
 extern const struct _mp_obj_module_t mp_module_uos;
@@ -140,6 +142,8 @@ extern const struct _mp_obj_module_t mp_module_ubinascii;
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_uos),         MP_ROM_PTR(&mp_module_uos) },       \
     { MP_ROM_QSTR(MP_QSTR_umachine),    MP_ROM_PTR(&machine_module) },      \
+	{ MP_ROM_QSTR(MP_QSTR_unetwork),    MP_ROM_PTR(&network_module) },      \
+	{ MP_ROM_QSTR(MP_QSTR_usocket),     MP_ROM_PTR(&socket_module) },       \
     { MP_ROM_QSTR(MP_QSTR_utime),       MP_ROM_PTR(&mp_module_utime) },     \
     { MP_ROM_QSTR(MP_QSTR_uselect),     MP_ROM_PTR(&mp_module_uselect) },   \
     { MP_ROM_QSTR(MP_QSTR_ubinascii),   MP_ROM_PTR(&mp_module_ubinascii) }, \
@@ -147,6 +151,8 @@ extern const struct _mp_obj_module_t mp_module_ubinascii;
 #define MICROPY_PORT_BUILTIN_MODULE_WEAK_LINKS \
     { MP_ROM_QSTR(MP_QSTR_os),          MP_ROM_PTR(&mp_module_uos) },       \
     { MP_ROM_QSTR(MP_QSTR_machine),     MP_ROM_PTR(&machine_module) },      \
+	{ MP_ROM_QSTR(MP_QSTR_network),     MP_ROM_PTR(&network_module) },      \
+	{ MP_ROM_QSTR(MP_QSTR_socket),      MP_ROM_PTR(&socket_module) },       \
     { MP_ROM_QSTR(MP_QSTR_time),        MP_ROM_PTR(&mp_module_utime) },     \
     { MP_ROM_QSTR(MP_QSTR_select),      MP_ROM_PTR(&mp_module_uselect) },   \
     { MP_ROM_QSTR(MP_QSTR_binascii),    MP_ROM_PTR(&mp_module_ubinascii) }, \
@@ -167,6 +173,8 @@ extern const struct _mp_obj_module_t mp_module_ubinascii;
 	mp_obj_t machine_config_main;                     \
 	struct _pyb_uart_obj_t *pyb_uart_objs[6];         \
 	struct _os_term_dup_obj_t *os_term_dup_obj;       \
+	struct _nic_obj_t *modnetwork_nic;                \
+
 
 // type definitions for the specific machine
 #define MICROPY_MAKE_POINTER_CALLABLE(p)            ((void*)((mp_uint_t)(p) | 1))

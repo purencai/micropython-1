@@ -4,7 +4,6 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2013, 2014 Damien P. George
- * Copyright (c) 2015 Daniel Campora
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +23,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_M480_MODS_PYBUART_H
-#define MICROPY_INCLUDED_M480_MODS_PYBUART_H
+#ifndef MICROPY_INCLUDED_M480_PYBRNG_H
+#define MICROPY_INCLUDED_M480_PYBRNG_H
+
+#include "py/obj.h"
 
 
-extern const mp_obj_type_t pyb_uart_type;
+void rng_init(void);
+uint32_t rng_get(void);
 
 
-typedef struct _pyb_uart_obj_t pyb_uart_obj_t;
+MP_DECLARE_CONST_FUN_OBJ_0(pyb_rng_get_obj);
 
 
-void uart_init0(void);
-int uart_rx_any(pyb_uart_obj_t *self);
-int uart_rx_char(pyb_uart_obj_t *self);
-bool uart_rx_wait(pyb_uart_obj_t *self);
-bool uart_tx_char(pyb_uart_obj_t *self, int c);
-bool uart_tx_strn(pyb_uart_obj_t *self, const char *str, uint len);
-
-
-#endif //MICROPY_INCLUDED_M480_MODS_PYBUART_H
+#endif //MICROPY_INCLUDED_M480_PYBRNG_H
