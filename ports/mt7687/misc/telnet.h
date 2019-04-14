@@ -38,4 +38,10 @@ extern void telnet_enable (void);
 extern void telnet_disable (void);
 extern void telnet_reset (void);
 
+<<<<<<< HEAD:ports/mt7687/misc/telnet.h
 #endif // MICROPY_INCLUDED_CC3200_TELNET_TELNET_H
+=======
+void gc_collect(void);
+
+#endif // MICROPY_INCLUDED_ESP8266_GCCOLLECT_H
+>>>>>>> 673e154dfef6aef827b86ea177c211269358b282:ports/esp8266/gccollect.h
