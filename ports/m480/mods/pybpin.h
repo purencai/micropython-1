@@ -51,8 +51,8 @@ typedef struct {
 	uint8_t             pull;
 	uint8_t             IRQn;
     uint8_t             irq_trigger;
-    uint8_t             irq_priority;   // ÖĞ¶ÏÓÅÏÈ¼¶
-    mp_obj_t            irq_callback;   // ÖĞ¶Ï´¦Àíº¯Êı
+    uint8_t             irq_priority;   // ä¸­æ–­ä¼˜å…ˆçº§
+    mp_obj_t            irq_callback;   // ä¸­æ–­å¤„ç†å‡½æ•°
 } pin_obj_t;
 
 #include "pins.h"

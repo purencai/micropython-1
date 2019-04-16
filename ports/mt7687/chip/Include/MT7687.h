@@ -96,7 +96,7 @@ typedef struct {
 #define TIMR_CR_EN_Msk			(0x01 << TIMR_CR_EN_Pos)
 #define TIMR_CR_AR_Pos			1		// Auto Repeat
 #define TIMR_CR_AR_Msk			(0x01 << TIMR_CR_AR_Pos)
-#define TIMR_CR_32K_Pos			2		// Ê±»ù£º0 1KHz   1 32.768KHz
+#define TIMR_CR_32K_Pos			2		// æ—¶åŸºï¼š0 1KHz   1 32.768KHz
 #define TIMR_CR_32K_Msk			(0x01 << TIMR_CR_32K_Pos)
 #define TIMR_CR_RESTART_Pos		3
 #define TIMR_CR_RESTART_Msk		(0x01 << TIMR_CR_RESTART_Pos)
@@ -223,7 +223,7 @@ typedef struct {
 } PWM_TypeDef;
 
 
-#define PWM_GCR_START_Pos		0		// ÖÃÎ»Ê±£¬ËùÓÐÖÃÎ»global start enµÄÍ¨µÀÈ«²¿Ò»ÆðÆô¶¯
+#define PWM_GCR_START_Pos		0		// ç½®ä½æ—¶ï¼Œæ‰€æœ‰ç½®ä½global start ençš„é€šé“å…¨éƒ¨ä¸€èµ·å¯åŠ¨
 #define PWM_GCR_START_Msk		(0x01 << PWM_GCR_START_Pos)
 #define PWM_GCR_CLKSRC_Pos		1		// 0 32KHz   1 2MHz   2 XTAL
 #define PWM_GCR_CLKSRC_Msk		(0x03 << PWM_GCR_CLKSRC_Pos)

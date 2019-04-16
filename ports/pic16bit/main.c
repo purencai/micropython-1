@@ -87,7 +87,7 @@ soft_reset:
         }
     }
 
-    printf("MPY: soft reboot\n");
+    printf("PYB: soft reboot\n");
     mp_deinit();
     goto soft_reset;
 }

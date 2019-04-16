@@ -62,8 +62,8 @@ typedef struct _pyb_timer_obj_t {
     uint32_t period;
     uint32_t remain;        // period remain
     uint8_t  mode;
-    uint8_t  priority;      // ÖÐ¶ÏÓÅÏÈ¼¶
-    mp_obj_t callback;      // ÖÐ¶Ï´¦Àíº¯Êý
+    uint8_t  priority;      // ä¸­æ–­ä¼˜å…ˆçº§
+    mp_obj_t callback;      // ä¸­æ–­å¤„ç†å‡½æ•°
 } pyb_timer_obj_t;
 
 /******************************************************************************
@@ -88,7 +88,7 @@ STATIC void pyb_timer_print(const mp_print_t *print, mp_obj_t self_in, mp_print_
 
     if(self->mode == TIMR_MODE_TIMER)
     {
-        uint32_t _0_1ms = self->period / 12000;     // ÖÜÆÚÊ±¼ä³¤¶È£¬µ¥Î»0.1ms
+        uint32_t _0_1ms = self->period / 12000;     // å‘¨æœŸæ—¶é—´é•¿åº¦ï¼Œå•ä½0.1ms
 
         mp_printf(print, "Timer(%d, period=", self->timer_id);
         if(_0_1ms < 10000)
@@ -139,7 +139,7 @@ STATIC mp_obj_t pyb_timer_make_new(const mp_obj_type_t *type, size_t n_args, siz
 
     if(self->mode == TIMR_MODE_TIMER)
     {
-        self->period *= 12000;          // ¶¨Ê±Æ÷Ä£Ê½£ºµ¥Î»Îª0.1ms
+        self->period *= 12000;          // å®šæ—¶å™¨æ¨¡å¼ï¼šå•ä½ä¸º0.1ms
     }
     else //          TIMR_MODE_COUNTER
     {
@@ -219,12 +219,12 @@ STATIC mp_obj_t pyb_timer_period(size_t n_args, const mp_obj_t *args) {
     pyb_timer_obj_t *self = args[0];
     if (n_args == 1) {  // get
         if(self->mode == TIMR_MODE_TIMER)
-            return mp_obj_new_int(self->period/12000);              // ¶¨Ê±Æ÷Ä£Ê½£ºµ¥Î»Îª0.1ms
+            return mp_obj_new_int(self->period/12000);              // å®šæ—¶å™¨æ¨¡å¼ï¼šå•ä½ä¸º0.1ms
         else
-            return mp_obj_new_int(self->period);                    // ¼ÆÊýÆ÷Ä£Ê½£ºÂö³å¸öÊý
+            return mp_obj_new_int(self->period);                    // è®¡æ•°å™¨æ¨¡å¼ï¼šè„‰å†²ä¸ªæ•°
     } else {            // set
         self->period = mp_obj_get_int(args[1]);
-        if(self->mode == TIMR_MODE_TIMER) self->period *= 12000;    // ¶¨Ê±Æ÷Ä£Ê½£ºµ¥Î»Îª0.1ms
+        if(self->mode == TIMR_MODE_TIMER) self->period *= 12000;    // å®šæ—¶å™¨æ¨¡å¼ï¼šå•ä½ä¸º0.1ms
 
         if(self->period > 0xFFFFFF)
         {
@@ -264,9 +264,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_timer_stop_obj, pyb_timer_stop);
 void TIMR_Handler(pyb_timer_obj_t *self) {
     TIMR_INTClr(self->TIMRx);
 
-    if(self->remain < 12000)    // 12000/120000000 = 0.1ms, 12000/0xFFFFFF ¡Ö 0.07%
+    if(self->remain < 12000)    // 12000/120000000 = 0.1ms, 12000/0xFFFFFF â‰ˆ 0.07%
     {
-        /* Ê¹periodÖµÁ¢¼´ÉúÐ§ */
+        /* ä½¿periodå€¼ç«‹å³ç”Ÿæ•ˆ */
         TIMR_Stop(self->TIMRx);
         if(self->period > 0xFFFFFF)
         {
@@ -280,7 +280,7 @@ void TIMR_Handler(pyb_timer_obj_t *self) {
         }
         TIMR_Start(self->TIMRx);
 
-        /* Ö´ÐÐÖÐ¶Ï»Øµ÷ */
+        /* æ‰§è¡Œä¸­æ–­å›žè°ƒ */
         if(self->callback != mp_const_none)
         {
             gc_lock();
@@ -308,7 +308,7 @@ void TIMR_Handler(pyb_timer_obj_t *self) {
         }
         else
         {
-            /* Ê¹periodÖµÁ¢¼´ÉúÐ§ */
+            /* ä½¿periodå€¼ç«‹å³ç”Ÿæ•ˆ */
             TIMR_Stop(self->TIMRx);
             TIMR_SetPeriod(self->TIMRx, self->remain);
             TIMR_Start(self->TIMRx);

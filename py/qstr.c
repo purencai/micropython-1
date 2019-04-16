@@ -251,8 +251,7 @@ qstr qstr_from_strn(const char *str, size_t len) {
 }
 
 mp_uint_t qstr_hash(qstr q) {
-    const byte *qd = find_qstr(q);
-    return Q_GET_HASH(qd);
+    return Q_GET_HASH(find_qstr(q));
 }
 
 size_t qstr_len(qstr q) {

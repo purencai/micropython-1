@@ -58,7 +58,7 @@ typedef struct _pyb_dac_obj_t {
     pyb_dac_id_t dac_id;
     DAC_T *DACx;
 
-    uint8_t trigger;           // from PIN°¢TIMER
+    uint8_t trigger;           // from PIN„ÄÅTIMER
     uint8_t dma_chn;
 } pyb_dac_obj_t;
 

@@ -188,8 +188,8 @@ typedef unsigned int    mp_uint_t;                  // must be pointer size
 typedef long            mp_off_t;
 
 
-/* °üº¬M480.h»áµ¼ÖÂºê¶¨Òå¡°PC¡±³åÍ»£¬ÎŞ·¨Ê¹ÓÃ__set_PRIMASK¡¢__get_PRIMASK¡¢__disable_irqÈıº¯Êı
- * Òò´ËÖ±½ÓÕ¹¿ªÆäÄÚÈİÊ¹ÓÃ
+/* åŒ…å«M480.hä¼šå¯¼è‡´å®å®šä¹‰â€œPCâ€å†²çªï¼Œæ— æ³•ä½¿ç”¨__set_PRIMASKã€__get_PRIMASKã€__disable_irqä¸‰å‡½æ•°
+ * å› æ­¤ç›´æ¥å±•å¼€å…¶å†…å®¹ä½¿ç”¨
  */
 static inline void enable_irq(mp_uint_t state) {
     //__set_PRIMASK(state);
@@ -222,4 +222,4 @@ static inline mp_uint_t disable_irq(void) {
 #define realloc(p, n) m_realloc(p, n)
 
 // We need to provide a declaration/definition of alloca()
-#include <alloca.h>		// alloca()ÔÚÕ»ÖĞ·ÖÅä¿Õ¼ä£¬Àë¿ª´Ëº¯ÊıÊ±×Ô¶¯ÊÍ·Å
+#include <alloca.h>		// alloca()åœ¨æ ˆä¸­åˆ†é…ç©ºé—´ï¼Œç¦»å¼€æ­¤å‡½æ•°æ—¶è‡ªåŠ¨é‡Šæ”¾

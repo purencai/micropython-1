@@ -1120,7 +1120,7 @@ void alg_napt_event_handle(u32 type)
 
 /*****************************************************************************
  Prototype    : alg_napt_init
- Description  : Network Address Port Translation（napt）initialize
+ Description  : Network Address Port Translation锛坣apt锛塱nitialize
  Input        : void
  Output       : None
  Return Value : int      0   success

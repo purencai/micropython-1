@@ -47,12 +47,8 @@ void gc_collect(void) {
     // trace the stack, including the registers (since they live on the stack in this function)
     gc_collect_root((void**)sp, ((mp_uint_t)MP_STATE_THREAD(stack_top) - sp) / sizeof(uint32_t));
 
-<<<<<<< HEAD:ports/swm320/misc/gccollect.c
     // trace root pointers from any threads
     // mp_thread_gc_others();
-
-=======
-    // end the GC
->>>>>>> 673e154dfef6aef827b86ea177c211269358b282:ports/esp8266/gccollect.c
+    
     gc_collect_end();
 }

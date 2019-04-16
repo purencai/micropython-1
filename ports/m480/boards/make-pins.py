@@ -17,10 +17,10 @@ class Pin:
         self.IRQn = IRQn
 
     def print(self):
-    	print('const pin_af_t pin_%s_af[] = {' %self.name)
-    	for af in self.afs:
-    		print('    AF(%-20s, %-36s, %s, %s),' %af)
-    	print('};\n')
+        print('const pin_af_t pin_%s_af[] = {' %self.name)
+        for af in self.afs:
+            print('    AF(%-20s, %-36s, %s, %s),' %af)
+        print('};\n')
         print('pin_obj_t pin_{:4s} = PIN({:4s}, {:2s}, {:2s}, &{:4s}, pin_{:s}_af, {:s});\n'.format(self.name, self.name, self.port, self.pbit, self.name, self.name, self.IRQn))
 
     def print_header(self, hdr_file):
@@ -68,7 +68,7 @@ class Pins:
                 print('Q({})'.format(pin.name), file=qstr_file)
 
                 for af in pin.afs:
-                	print('Q({})'.format(af[0]), file=qstr_file)
+                    print('Q({})'.format(af[0]), file=qstr_file)
 
     def print_af_const(self, af_const_filename):
         with open(af_const_filename, 'wt') as af_const_file:

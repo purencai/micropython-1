@@ -170,7 +170,7 @@ static void init_sflash_filesystem(void)
     FRESULT res = f_mount(&vfs_fat.fatfs);
     if (res == FR_NO_FILESYSTEM) {
         // no filesystem, so create a fresh one
-        uint8_t working_buf[_MAX_SS];
+        uint8_t working_buf[FF_MAX_SS];
         res = f_mkfs(&vfs_fat.fatfs, FM_FAT | FM_SFD, 0, working_buf, sizeof(working_buf));
         if (res != FR_OK) {
             //printf("failed to create /flash");
@@ -238,15 +238,15 @@ static void systemInit(void)
     SYS->GPF_MFPH &= ~(SYS_GPF_MFPL_PF2MFP_Msk     | SYS_GPF_MFPL_PF3MFP_Msk);
     SYS->GPF_MFPH |=  (SYS_GPF_MFPL_PF2MFP_XT1_OUT | SYS_GPF_MFPL_PF3MFP_XT1_IN);
 
-    CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);		// ʹ��HXT���ⲿ����12MHz��
-    CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);	// �ȴ�HXT�ȶ�
+    CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);		// 使能HXT（外部晶振，12MHz）
+    CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);	// 等待HXT稳定
 
     /* Set access cycle for CPU @ 192MHz */
     FMC->CYCCTL = (FMC->CYCCTL & ~FMC_CYCCTL_CYCLE_Msk) | (8 << FMC_CYCCTL_CYCLE_Pos);
-    CLK_SetCoreClock(192000000);				// ��PLL����ָ��Ƶ����Ϊϵͳʱ��
-                                                // ��HXTʹ�ܣ���PLLʱ��Դѡ��HXT�������ʵ������޸�__HXT��ֵ
+    CLK_SetCoreClock(192000000);				// 用PLL产生指定频率作为系统时钟
+                                                // 若HXT使能，则PLL时钟源选择HXT，须根据实际情况修改__HXT的值
 
-    CLK->PCLKDIV = CLK_PCLKDIV_PCLK0DIV1 | CLK_PCLKDIV_PCLK1DIV1;   // APB����CPUͬƵ
+    CLK->PCLKDIV = CLK_PCLKDIV_PCLK0DIV1 | CLK_PCLKDIV_PCLK1DIV1;   // APB都与CPU同频
 
     SYS_LockReg();
 

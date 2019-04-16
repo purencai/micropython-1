@@ -2,11 +2,11 @@
 #define __SWM320_SDRAM_H__
 
 typedef struct {
-	uint8_t DataWidth;			// 16¡¢32
+	uint8_t DataWidth;			// 16ã€32
 	
-	uint8_t CellSize;			// SDRAM¿ÅÁ£µÄÈİÁ¿
-	uint8_t CellBank;			// SDRAM¿ÅÁ£ÓĞ¼¸¸öbank
-	uint8_t CellWidth;			// SDRAM¿ÅÁ£µÄÎ»¿í 16¡¢32
+	uint8_t CellSize;			// SDRAMé¢—ç²’çš„å®¹é‡
+	uint8_t CellBank;			// SDRAMé¢—ç²’æœ‰å‡ ä¸ªbank
+	uint8_t CellWidth;			// SDRAMé¢—ç²’çš„ä½å®½ 16ã€32
 } SDRAM_InitStructure;
 
 #define SDRAM_CELLSIZE_16Mb		3

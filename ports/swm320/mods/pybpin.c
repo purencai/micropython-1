@@ -248,7 +248,7 @@ STATIC void GPIOX_Handler(GPIO_TypeDef *GPIOx, uint n) {
 
             pin_obj_t *self = pin_find_by_port_bit(GPIOx, i);
 
-            /* 执行中断回调 */
+            /* 鎵ц涓柇鍥炶皟 */
             if(self->callback != mp_const_none)
             {
                 gc_lock();

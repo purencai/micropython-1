@@ -73,8 +73,8 @@ STATIC pyb_i2c_obj_t pyb_i2c_obj[PYB_NUM_I2CS] = { { .i2c_id = PYB_I2C_0, .I2Cx 
 STATIC bool pyb_i2c_scan_device(pyb_i2c_obj_t *self, byte devAddr) {
     self->I2Cx->MSTDAT = (devAddr << 1) | 0;
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STA_Pos) |
-                         (1 << I2C_MSTCMD_WR_Pos);			//·¢ËÍÆðÊ¼Î»ºÍ´Ó»úµØÖ·
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//µÈ´ý·¢ËÍÍê³É
+                         (1 << I2C_MSTCMD_WR_Pos);			//å‘é€èµ·å§‹ä½å’Œä»Žæœºåœ°å€
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//ç­‰å¾…å‘é€å®Œæˆ
     if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
     {
         return false;
@@ -86,8 +86,8 @@ STATIC bool pyb_i2c_scan_device(pyb_i2c_obj_t *self, byte devAddr) {
 STATIC bool pyb_i2c_write(pyb_i2c_obj_t *self, byte addr, byte *data, uint len) {
     self->I2Cx->MSTDAT = (addr << 1) | 0;
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STA_Pos) |
-                         (1 << I2C_MSTCMD_WR_Pos);			//·¢ËÍÆðÊ¼Î»ºÍ´Ó»úµØÖ·
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//µÈ´ý·¢ËÍÍê³É
+                         (1 << I2C_MSTCMD_WR_Pos);			//å‘é€èµ·å§‹ä½å’Œä»Žæœºåœ°å€
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//ç­‰å¾…å‘é€å®Œæˆ
     if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
     {
         goto write_err;
@@ -96,7 +96,7 @@ STATIC bool pyb_i2c_write(pyb_i2c_obj_t *self, byte addr, byte *data, uint len) 
     while (--len) {
         self->I2Cx->MSTDAT = *data++;
         self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_WR_Pos);
-        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//µÈ´ý·¢ËÍÍê³É
+        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//ç­‰å¾…å‘é€å®Œæˆ
         if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
         {
             goto write_err;
@@ -104,13 +104,13 @@ STATIC bool pyb_i2c_write(pyb_i2c_obj_t *self, byte addr, byte *data, uint len) 
     }
 
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STO_Pos);
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//µÈ´ý·¢ËÍÍê³É
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//ç­‰å¾…å‘é€å®Œæˆ
 
     return true;
 
 write_err:
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STO_Pos);
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //µÈ´ý·¢ËÍÍê³É
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //ç­‰å¾…å‘é€å®Œæˆ
 
     return false;
 }
@@ -118,8 +118,8 @@ write_err:
 STATIC bool pyb_i2c_mem_addr_write (pyb_i2c_obj_t *self, byte addr, byte *mem_addr, uint mem_addr_len) {
     self->I2Cx->MSTDAT = (addr << 1) | 0;
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STA_Pos) |
-                         (1 << I2C_MSTCMD_WR_Pos);			//·¢ËÍÆðÊ¼Î»ºÍ´Ó»úµØÖ·
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//µÈ´ý·¢ËÍÍê³É
+                         (1 << I2C_MSTCMD_WR_Pos);			//å‘é€èµ·å§‹ä½å’Œä»Žæœºåœ°å€
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//ç­‰å¾…å‘é€å®Œæˆ
     if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
     {
         goto write_err;
@@ -128,7 +128,7 @@ STATIC bool pyb_i2c_mem_addr_write (pyb_i2c_obj_t *self, byte addr, byte *mem_ad
     while (--mem_addr_len) {
         self->I2Cx->MSTDAT = *mem_addr++;
         self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_WR_Pos);
-        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//µÈ´ý·¢ËÍÍê³É
+        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//ç­‰å¾…å‘é€å®Œæˆ
         if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
         {
             goto write_err;
@@ -139,7 +139,7 @@ STATIC bool pyb_i2c_mem_addr_write (pyb_i2c_obj_t *self, byte addr, byte *mem_ad
 
 write_err:
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STO_Pos);
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //µÈ´ý·¢ËÍÍê³É
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //ç­‰å¾…å‘é€å®Œæˆ
 
     return false;
 }
@@ -150,7 +150,7 @@ STATIC bool pyb_i2c_mem_write (pyb_i2c_obj_t *self, byte addr, byte *mem_addr, u
         while (data_len--) {
             self->I2Cx->MSTDAT = *data++;
             self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_WR_Pos);
-            while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;//µÈ´ý·¢ËÍÍê³É
+            while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;//ç­‰å¾…å‘é€å®Œæˆ
             if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
             {
                 goto write_err;
@@ -158,14 +158,14 @@ STATIC bool pyb_i2c_mem_write (pyb_i2c_obj_t *self, byte addr, byte *mem_addr, u
         }
 
         self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STO_Pos);
-        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;    //µÈ´ý·¢ËÍÍê³É
+        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;    //ç­‰å¾…å‘é€å®Œæˆ
 
         return true;
     }
 
 write_err:
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STO_Pos);
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //µÈ´ý·¢ËÍÍê³É
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //ç­‰å¾…å‘é€å®Œæˆ
 
     return false;
 }
@@ -173,8 +173,8 @@ write_err:
 STATIC bool pyb_i2c_read(pyb_i2c_obj_t *self, byte addr, byte *data, uint len) {
     self->I2Cx->MSTDAT = (addr << 1) | 1;
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STA_Pos) |
-                         (1 << I2C_MSTCMD_WR_Pos);          //·¢ËÍRestart
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//µÈ´ý·¢ËÍÍê³É
+                         (1 << I2C_MSTCMD_WR_Pos);          //å‘é€Restart
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//ç­‰å¾…å‘é€å®Œæˆ
     if(self->I2Cx->MSTCMD & I2C_MSTCMD_RXACK_Msk)
     {
         goto write_err;
@@ -184,21 +184,21 @@ STATIC bool pyb_i2c_read(pyb_i2c_obj_t *self, byte addr, byte *data, uint len) {
     {
         self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_RD_Pos) |
                              (0 << I2C_MSTCMD_ACK_Pos);
-        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//µÈ´ý½ÓÊÕÍê³É
+        while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;	//ç­‰å¾…æŽ¥æ”¶å®Œæˆ
         *data++ = self->I2Cx->MSTDAT;
     }
 
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_RD_Pos)  |
                          (1 << I2C_MSTCMD_ACK_Pos) |
-                         (1 << I2C_MSTCMD_STO_Pos);         //¶ÁÈ¡Êý¾Ý¡¢·¢ËÍNACKÏìÓ¦£¬Íê³Éºó·¢ËÍSTOP
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//µÈ´ý½ÓÊÕÍê³É
+                         (1 << I2C_MSTCMD_STO_Pos);         //è¯»å–æ•°æ®ã€å‘é€NACKå“åº”ï¼Œå®ŒæˆåŽå‘é€STOP
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;		//ç­‰å¾…æŽ¥æ”¶å®Œæˆ
     *data++ = self->I2Cx->MSTDAT;
 
     return true;
 
 write_err:
     self->I2Cx->MSTCMD = (1 << I2C_MSTCMD_STO_Pos);
-    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //µÈ´ý·¢ËÍÍê³É
+    while(self->I2Cx->MSTCMD & I2C_MSTCMD_TIP_Msk) ;        //ç­‰å¾…å‘é€å®Œæˆ
 
     return false;
 }

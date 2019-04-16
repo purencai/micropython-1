@@ -57,7 +57,7 @@ typedef struct {
     pyb_adc_id_t adc_id;
     EADC_T *ADCx;
 
-    uint16_t sw_samples;    // 软件触发采样
+    uint16_t sw_samples;    // 杞欢瑙﹀彂閲囨牱
 } pyb_adc_obj_t;
 
 

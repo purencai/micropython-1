@@ -100,7 +100,8 @@ STATIC int adc_find(mp_obj_t id) {
         && machine_adc_obj[adc_idx].id != (uint8_t)-1) {
         return adc_idx;
     }
-    mp_raise_ValueError("ADC doesn't exist");
+    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
+        "ADC(%d) does not exist", adc_id));
 }
 
 /// \method __str__()

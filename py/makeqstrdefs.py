@@ -9,7 +9,6 @@ from __future__ import print_function
 
 import re
 import sys
-import io
 import os
 
 # Blacklist of qstrings that are specially handled in further
@@ -109,7 +108,7 @@ if __name__ == "__main__":
         pass
 
     if args.command == "split":
-        with io.open(args.input_filename, encoding='utf-8') as infile:
+        with open(args.input_filename) as infile:
             process_file(infile)
 
     if args.command == "cat":

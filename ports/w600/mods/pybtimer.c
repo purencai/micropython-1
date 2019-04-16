@@ -61,8 +61,8 @@ typedef enum {
 typedef struct _pyb_timer_obj_t {
     mp_obj_base_t base;
     pyb_timer_id_t timer_id;
-    uint32_t period;        // 单位us
-    mp_obj_t callback;      // 中断处理函数
+    uint32_t period;        // 鍗曚綅us
+    mp_obj_t callback;      // 涓柇澶勭悊鍑芥暟
 } pyb_timer_obj_t;
 
 

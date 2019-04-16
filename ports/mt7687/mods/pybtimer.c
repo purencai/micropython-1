@@ -60,8 +60,8 @@ typedef struct _pyb_timer_obj_t {
     TIMR_TypeDef *TIMRx;
     uint32_t period;
     uint8_t  mode;
-    uint8_t  priority;      // ÖÐ¶ÏÓÅÏÈ¼¶
-    mp_obj_t callback;      // ÖÐ¶Ï´¦Àíº¯Êý
+    uint8_t  priority;      // ä¸­æ–­ä¼˜å…ˆçº§
+    mp_obj_t callback;      // ä¸­æ–­å¤„ç†å‡½æ•°
 } pyb_timer_obj_t;
 
 
@@ -157,9 +157,9 @@ STATIC mp_obj_t pyb_timer_period(size_t n_args, const mp_obj_t *args) {
     pyb_timer_obj_t *self = args[0];
     if (n_args == 1) {  // get
         if(self->mode == TIMR_MODE_TIMER)
-            return mp_obj_new_int(self->period);    // ¶¨Ê±Æ÷Ä£Ê½£ºµ¥Î»Îª1ms
+            return mp_obj_new_int(self->period);    // å®šæ—¶å™¨æ¨¡å¼ï¼šå•ä½ä¸º1ms
         else
-            return mp_obj_new_int(self->period);    // ¼ÆÊýÆ÷Ä£Ê½£ºÂö³å¸öÊý
+            return mp_obj_new_int(self->period);    // è®¡æ•°å™¨æ¨¡å¼ï¼šè„‰å†²ä¸ªæ•°
     } else {            // set
         self->period = mp_obj_get_int(args[1]);
 
@@ -205,7 +205,7 @@ void GPT_Handler(void) {
         self = &pyb_timer_obj[PYB_TIMER_1];
     }
 
-    /* Ö´ÐÐÖÐ¶Ï»Øµ÷ */
+    /* æ‰§è¡Œä¸­æ–­å›žè°ƒ */
     if(self->callback != mp_const_none)
     {
         gc_lock();

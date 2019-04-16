@@ -35,8 +35,8 @@ typedef struct {
     qstr                alt;
     uint8_t             dir;
     uint8_t             mode;
-    uint8_t             priority;   // ÖĞ¶ÏÓÅÏÈ¼¶
-    mp_obj_t            callback;   // ÖĞ¶Ï´¦Àíº¯Êı
+    uint8_t             priority;   // ä¸­æ–­ä¼˜å…ˆçº§
+    mp_obj_t            callback;   // ä¸­æ–­å¤„ç†å‡½æ•°
 } pin_obj_t;
 
 #include "pins.h"

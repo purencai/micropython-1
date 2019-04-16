@@ -260,7 +260,7 @@ STATIC mp_obj_t pyb_uart_make_new(const mp_obj_type_t *type, size_t n_args, size
     UART_initStruct.StopBits = self->stopbits;
     UART_initStruct.RXThreshold = 4;
     UART_initStruct.RXThresholdIEn = 1;
-    UART_initStruct.TimeoutTime = 10;   //10¸ö×Ö·ûÊ±¼äÄÚÎ´½ÓÊÕµ½ÐÂµÄÊý¾ÝÔò´¥·¢³¬Ê±ÖÐ¶Ï
+    UART_initStruct.TimeoutTime = 10;   //10ä¸ªå­—ç¬¦æ—¶é—´å†…æœªæŽ¥æ”¶åˆ°æ–°çš„æ•°æ®åˆ™è§¦å‘è¶…æ—¶ä¸­æ–­
     UART_initStruct.TimeoutIEn = 1;
     UART_initStruct.TXThresholdIEn = 0;
     UART_Init(self->UARTx, &UART_initStruct);

@@ -134,7 +134,7 @@ static const mp_arg_t pyb_spi_init_args[] = {
                          MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
     { MP_QSTR_sclk,      MP_ARG_REQUIRED |
                          MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
-    { MP_QSTR_ssel,      MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} }, // 从机模式下需指定
+    { MP_QSTR_ssel,      MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} }, // 浠庢満妯″紡涓嬮渶鎸囧畾
 };
 STATIC mp_obj_t pyb_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     // parse args

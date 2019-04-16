@@ -73,13 +73,13 @@ typedef struct _pyb_timer_obj_t {
     uint8_t  mode;
     uint8_t  edge;
 
-    uint8_t  trigger;           // to ADC¡¢DAC¡¢DMA¡¢PWM
+    uint8_t  trigger;           // to ADCã€DACã€DMAã€PWM
 
     uint8_t  IRQn;
-    uint8_t  irq_flags;         // IRQ_TIMEOUT¡¢IRQ_CAPTUE
+    uint8_t  irq_flags;         // IRQ_TIMEOUTã€IRQ_CAPTUE
     uint8_t  irq_trigger;
-    uint8_t  irq_priority;      // ÖĞ¶ÏÓÅÏÈ¼¶
-    mp_obj_t irq_callback;      // ÖĞ¶Ï´¦Àíº¯Êı
+    uint8_t  irq_priority;      // ä¸­æ–­ä¼˜å…ˆçº§
+    mp_obj_t irq_callback;      // ä¸­æ–­å¤„ç†å‡½æ•°
 } pyb_timer_obj_t;
 
 

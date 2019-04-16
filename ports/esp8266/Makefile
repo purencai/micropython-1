@@ -59,9 +59,6 @@ COPT += -Os -DNDEBUG
 LDFLAGS += --gc-sections
 endif
 
-# Options for mpy-cross
-MPY_CROSS_FLAGS += -march=xtensa
-
 SRC_C = \
 	strtoll.c \
 	main.c \
@@ -130,7 +127,7 @@ LIB_SRC_C = $(addprefix lib/,\
 ifeq ($(MICROPY_FATFS), 1)
 LIB_SRC_C += \
 	lib/oofatfs/ff.c \
-	lib/oofatfs/ffunicode.c
+	lib/oofatfs/option/unicode.c
 endif
 
 DRIVERS_SRC_C = $(addprefix drivers/,\

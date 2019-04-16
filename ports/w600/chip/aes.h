@@ -73,7 +73,7 @@ x = ((unsigned long)((y)[0] & 255)<<24) | \
 #define	PS_TRUE		1
 #define	PS_FALSE 	0	
 
-//typedef int  int32;	//调用wm_type_def.h
+//typedef int  int32;	//璋冪敤wm_type_def.h
 //typedef unsigned int  uint32;
 //typedef short  int16;
 //typedef unsigned short  uint16;

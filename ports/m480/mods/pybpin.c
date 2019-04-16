@@ -149,7 +149,7 @@ const pin_af_t *pin_af_find_by_name(pin_obj_t *self, qstr name)
     mp_raise_OSError(MP_ENODEV);
 }
 
-//×¢Òâ£ºÒ»¸öÖµ¿ÉÄÜ¶ÔÓ¦¶à¸öÃû×Ö£¬Òò´Ë²éµ½µÄafÎ´±ØÕıÈ·£¬µ«³ÌĞòÖ´ĞĞ¿É±£Ö¤ÕıÈ·
+//æ³¨æ„ï¼šä¸€ä¸ªå€¼å¯èƒ½å¯¹åº”å¤šä¸ªåå­—ï¼Œå› æ­¤æŸ¥åˆ°çš„afæœªå¿…æ­£ç¡®ï¼Œä½†ç¨‹åºæ‰§è¡Œå¯ä¿è¯æ­£ç¡®
 const pin_af_t *pin_af_find_by_value(pin_obj_t *self, uint value)
 {
     for(uint i = 0; i < self->afn; i++)
@@ -331,7 +331,7 @@ STATIC void GPX_Handler(GPIO_T *GPx, uint n) {
 
             pin_obj_t *self = pin_find_by_port_bit(GPx, i);
 
-            /* Ö´ĞĞÖĞ¶Ï»Øµ÷ */
+            /* æ‰§è¡Œä¸­æ–­å›è°ƒ */
             if(self->irq_callback != mp_const_none)
             {
                 gc_lock();

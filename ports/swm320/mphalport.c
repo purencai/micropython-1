@@ -43,7 +43,7 @@
 #include "pybuart.h"
 
 
-volatile uint32_t SysTick_ms = 0;   // Ã¿ºÁÃë¼ÓÒ»
+volatile uint32_t SysTick_ms = 0;   // æ¯æ¯«ç§’åŠ ä¸€
 
 void SysTick_Handler(void)
 {

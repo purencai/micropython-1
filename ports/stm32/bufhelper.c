@@ -28,7 +28,7 @@
 #include "bufhelper.h"
 
 void pyb_buf_get_for_send(mp_obj_t o, mp_buffer_info_t *bufinfo, byte *tmp_data) {
-    if (mp_obj_is_int(o)) {
+    if (MP_OBJ_IS_INT(o)) {
         tmp_data[0] = mp_obj_get_int(o);
         bufinfo->buf = tmp_data;
         bufinfo->len = 1;
@@ -39,7 +39,7 @@ void pyb_buf_get_for_send(mp_obj_t o, mp_buffer_info_t *bufinfo, byte *tmp_data)
 }
 
 mp_obj_t pyb_buf_get_for_recv(mp_obj_t o, vstr_t *vstr) {
-    if (mp_obj_is_int(o)) {
+    if (MP_OBJ_IS_INT(o)) {
         // allocate a new bytearray of given length
         vstr_init_len(vstr, mp_obj_get_int(o));
         return MP_OBJ_NULL;

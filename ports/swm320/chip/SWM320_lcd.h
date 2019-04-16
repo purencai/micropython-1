@@ -3,28 +3,28 @@
 
 
 typedef struct {
-	uint8_t  Interface;		//LCD���ӿڣ�LCD_INTERFACE_RGB��LCD_INTERFACE_I80��LCD_INTERFACE_M68
+	uint8_t  Interface;		//LCD屏接口：LCD_INTERFACE_RGB、LCD_INTERFACE_I80、LCD_INTERFACE_M68
 	
-	/* RGBͬ���ӿڲ��� */
-	uint8_t  Dir;			//LCD_DIR_LANDSCAPE ����    LCD_DIR_PORTRAIT ����
-	uint16_t HnPixel;		//ˮƽ�������ظ��������ȡֵ1024
-	uint16_t VnPixel;		//��ֱ�������ظ��������ȡֵ 768
-	uint8_t  Hfp;			//horizonal front porch�����ȡֵ32
-	uint8_t  Hbp;			//horizonal back porch�� ���ȡֵ128
-	uint8_t  Vfp;			//vertical front porch�� ���ȡֵ8
-	uint8_t  Vbp;			//vertical back porch��  ���ȡֵ32
-	uint8_t  ClkDiv;		//ϵͳʱ�Ӿ�ClkDiv��Ƶ�����DOCCLK��0 2��Ƶ    1 4��Ƶ    2 6��Ƶ    ... ...    31 64��Ƶ
-	uint8_t  SamplEdge;		//��Ļ��DOTCLK���ĸ����ز������ݣ�LCD_SAMPLEDGE_RISE��LCD_SAMPLEDGE_FALL
-	uint8_t  ClkAlways;		//1 һֱ���DOTCLK    0 ֻ�ڴ�������ʱ���DOTCLK
-	uint8_t  HsyncWidth;	//HSYNC�͵�ƽ�������ٸ�DOTCLK��ȡֵ��LCD_HSYNC_1DOTCLK��LCD_HSYNC_2DOTCLK��LCD_HSYNC_3DOTCLK��LCD_HSYNC_4DOTCLK
+	/* RGB同步接口参数 */
+	uint8_t  Dir;			//LCD_DIR_LANDSCAPE 横屏    LCD_DIR_PORTRAIT 竖屏
+	uint16_t HnPixel;		//水平方向像素个数，最大取值1024
+	uint16_t VnPixel;		//垂直方向像素个数，最大取值 768
+	uint8_t  Hfp;			//horizonal front porch，最大取值32
+	uint8_t  Hbp;			//horizonal back porch， 最大取值128
+	uint8_t  Vfp;			//vertical front porch， 最大取值8
+	uint8_t  Vbp;			//vertical back porch，  最大取值32
+	uint8_t  ClkDiv;		//系统时钟经ClkDiv分频后产生DOCCLK，0 2分频    1 4分频    2 6分频    ... ...    31 64分频
+	uint8_t  SamplEdge;		//屏幕在DOTCLK的哪个边沿采样数据：LCD_SAMPLEDGE_RISE、LCD_SAMPLEDGE_FALL
+	uint8_t  ClkAlways;		//1 一直输出DOTCLK    0 只在传输数据时输出DOTCLK
+	uint8_t  HsyncWidth;	//HSYNC低电平持续多少个DOTCLK，取值：LCD_HSYNC_1DOTCLK、LCD_HSYNC_2DOTCLK、LCD_HSYNC_3DOTCLK、LCD_HSYNC_4DOTCLK
 	
-	/* MPU��8080���ӿڲ��� */
-	uint8_t  T_CSf_WRf;		//CSn�½��ص�WRn�½��ص�ʱ�䣬ȡֵ0--3
-	uint8_t  T_WRnHold;		//WRn�͵�ƽ�ĳ���ʱ�䣬       ȡֵ0--7
-	uint8_t  T_WRr_CSr;		//WRn�����ص�CSn�����ص�ʱ�䣬ȡֵ0--3
-	uint8_t  T_CSr_CSf;		//CSn�����ص�CSn�½��ص�ʱ�䣬ȡֵ0--7
+	/* MPU（8080）接口参数 */
+	uint8_t  T_CSf_WRf;		//CSn下降沿到WRn下降沿的时间，取值0--3
+	uint8_t  T_WRnHold;		//WRn低电平的持续时间，       取值0--7
+	uint8_t  T_WRr_CSr;		//WRn上升沿到CSn上升沿的时间，取值0--3
+	uint8_t  T_CSr_CSf;		//CSn上升沿到CSn下降沿的时间，取值0--7
 	
-	uint8_t  IntEOTEn;		//End of Transter��������ɣ��ж�ʹ��
+	uint8_t  IntEOTEn;		//End of Transter（传输完成）中断使能
 } LCD_InitStructure;
 
 
@@ -32,13 +32,13 @@ typedef struct {
 #define LCD_INTERFACE_I80	1
 #define LCD_INTERFACE_M68	2
 
-#define LCD_DIR_LANDSCAPE	0	//����
-#define LCD_DIR_PORTRAIT	1	//����
+#define LCD_DIR_LANDSCAPE	0	//横屏
+#define LCD_DIR_PORTRAIT	1	//竖屏
 
-#define LCD_SAMPLEDGE_RISE	0	//��Ļ��DOTCLK�������ز�������
-#define LCD_SAMPLEDGE_FALL	1	//��Ļ��DOTCLK���½��ز�������
+#define LCD_SAMPLEDGE_RISE	0	//屏幕在DOTCLK的上升沿采样数据
+#define LCD_SAMPLEDGE_FALL	1	//屏幕在DOTCLK的下降沿采样数据
 
-#define LCD_HSYNC_1DOTCLK	0	//1��DOTCLK
+#define LCD_HSYNC_1DOTCLK	0	//1个DOTCLK
 #define LCD_HSYNC_2DOTCLK	1
 #define LCD_HSYNC_3DOTCLK	2
 #define LCD_HSYNC_4DOTCLK	3

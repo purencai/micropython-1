@@ -196,14 +196,14 @@ STATIC mp_obj_t adc_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
     ADC_initStruct.channels = 0;
     ADC_initStruct.samplAvg = ADC_AVG_SAMPLE1;
     ADC_initStruct.trig_src = ADC_TRIGSRC_SW;
-    ADC_initStruct.Continue = 0;						//·ÇÁ¬ÐøÄ£Ê½£¬¼´µ¥´ÎÄ£Ê½
+    ADC_initStruct.Continue = 0;						//éžè¿žç»­æ¨¡å¼ï¼Œå³å•æ¬¡æ¨¡å¼
     ADC_initStruct.EOC_IEn = 0;
     ADC_initStruct.OVF_IEn = 0;
     ADC_initStruct.HFULL_IEn = 0;
     ADC_initStruct.FULL_IEn = 0;
-    ADC_Init(self->ADCx, &ADC_initStruct);              //ÅäÖÃADC
+    ADC_Init(self->ADCx, &ADC_initStruct);              //é…ç½®ADC
 
-    ADC_Open(self->ADCx);								//Ê¹ÄÜADC
+    ADC_Open(self->ADCx);								//ä½¿èƒ½ADC
 
     uint32_t chns = args[1].u_int;
 

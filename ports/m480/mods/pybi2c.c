@@ -119,7 +119,7 @@ STATIC mp_obj_t pyb_i2c_make_new(const mp_obj_type_t *type, size_t n_args, size_
         { MP_QSTR_id,         MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 1} },
         { MP_QSTR_baudrate,   MP_ARG_REQUIRED | MP_ARG_INT,  {.u_int = 10000} },
         { MP_QSTR_slave,      MP_ARG_KW_ONLY  | MP_ARG_BOOL, {.u_bool= false} },
-        { MP_QSTR_slave_addr, MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },    // 0x15°¢[0x15, 0x25]°¢[(0x15, 0x3F), (0x25, 0x47)]°¢[0x15, (0x25, 0x47)]
+        { MP_QSTR_slave_addr, MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },    // 0x15„ÄÅ[0x15, 0x25]„ÄÅ[(0x15, 0x3F), (0x25, 0x47)]„ÄÅ[0x15, (0x25, 0x47)]
         { MP_QSTR_scl,        MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
         { MP_QSTR_sda,        MP_ARG_KW_ONLY  | MP_ARG_OBJ,  {.u_obj = mp_const_none} },
     };

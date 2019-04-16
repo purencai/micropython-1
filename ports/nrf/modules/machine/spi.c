@@ -131,7 +131,7 @@ void spi_init0(void) {
 }
 
 STATIC int spi_find(mp_obj_t id) {
-    if (mp_obj_is_str(id)) {
+    if (MP_OBJ_IS_STR(id)) {
         // given a string id
         const char *port = mp_obj_str_get_str(id);
         if (0) {
@@ -140,14 +140,16 @@ STATIC int spi_find(mp_obj_t id) {
             return 1;
         #endif
         }
-        mp_raise_ValueError("SPI doesn't exist");
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
+            "SPI(%s) does not exist", port));
     } else {
         // given an integer id
         int spi_id = mp_obj_get_int(id);
         if (spi_id >= 0 && spi_id < MP_ARRAY_SIZE(machine_hard_spi_obj)) {
             return spi_id;
         }
-        mp_raise_ValueError("SPI doesn't exist");
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
+            "SPI(%d) does not exist", spi_id));
     }
 }
 

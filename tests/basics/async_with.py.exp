@@ -6,6 +6,3 @@ enter
 1
 exit <class 'ValueError'> error
 ValueError
-enter
-exit <class 'BaseException'> 
-BaseException
